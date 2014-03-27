@@ -1,4 +1,4 @@
-devol
+DEvol
 =====
 
 Framework for genetic programming over typed expressions
