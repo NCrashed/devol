@@ -6,9 +6,21 @@
 	           , "LeMarwin <lemarwin42@gmail.com>"
 	           , "Nazgull09 <nazgull90@gmail.com>" ],
 	
-	"targetPath": "bin",           
+	"targetPath": "bin",
 	"dependencies": {
 	   "derelict-util": ">=1.0.0",
 	   "derelict-sdl2": "~master"
-	}
+	},
+	
+	"configurations": [
+	   {
+	       "name": "core",
+	       "targetType": "library"
+	   },
+       {
+           "name": "ant",
+           "targetType": "executable",
+           "mainSourceFile": "ant.d"
+       }
+	]
 }
