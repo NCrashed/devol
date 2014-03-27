@@ -29,4 +29,8 @@ Now you can create your own dub packages and reference to the DEvol in the follo
   "devol": "~master"
 }
 ```
+Screenshots
+===========
+Ant problem solver - the task is find algorithm that can collect all food chained with gaps. Ant can rotate, move forward and check if there is food in front of it. 
 
+![Ant problem solver](devol-ant-screen1.png)
