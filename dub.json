@@ -20,7 +20,7 @@
        {
            "name": "ant",
            "targetType": "executable",
-           "mainSourceFile": "ant.d"
+           "mainSourceFile": "ant/main.d"
        }
 	]
 }
