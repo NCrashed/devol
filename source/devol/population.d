@@ -14,6 +14,7 @@ import std.string;
 import std.array;
 import std.algorithm;
 import std.conv;
+import std.file;
 
 public
 {
@@ -164,6 +165,7 @@ public:
 		File* f;
 		try
 		{
+		    mkdirRecurse(filename);
 			f = new File(filename~mName~"_g"~to!string(iGeneration), "w");
 		
 			do
@@ -184,6 +186,7 @@ public:
 		File* f;
 		try
 		{
+		    mkdirRecurse(filename);
 			f = new File(filename~mName~"_g"~to!string(iGeneration), "w");
 			
 			foreach(i,ind;inds)

@@ -92,15 +92,15 @@ AntCompiler;
 
 void main(char[][] args)
 {
-	auto comp = new AntCompiler;
-	auto tmng = TypeMng.getSingleton();
-	auto opmng = OperatorMng.getSingleton();
-
-	writeln("creating window");
 	auto app = new App;
+	scope(exit) destroy(app);
 	
-	writeln("testing population");
-	auto pop = comp.addPop(30);
-	
-	while(true) {comp.envolveGeneration();}
+    auto comp = new AntCompiler;
+    auto tmng = TypeMng.getSingleton();
+    auto opmng = OperatorMng.getSingleton();
+    
+    writeln("testing population");
+    auto pop = comp.addPop(30);
+    
+    while(!app.shouldExit) {comp.envolveGeneration(() => app.shouldExit);}
 }

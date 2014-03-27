@@ -157,17 +157,13 @@ class AntWorld: WorldAbstract
 				auto app = App.getSingleton();
 				assert(app !is null);
 				
-				//app.clear();
-				writeln("drawGrMap");
+				app.clear();
 				draw(app, app.food, app.empty, app.wall);
-				writeln("drawGr");
 				app.draw(app.ants[Grower.Direction], 32u*(Grower.x+1), 32u*(Grower.y+1), 32u, 32u);
 				app.present();
 			}
 			
-			writeln("PrintingGr");
 			printGr();
-			//Thread.sleep(dur!"msecs"(100));
 		}
 	}
 		void zeros()

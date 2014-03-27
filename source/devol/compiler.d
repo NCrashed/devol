@@ -34,14 +34,16 @@ struct SequentCompilation
 		}		
 	}
 	
-	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
+	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType, bool delegate() whenExit )
 	{
 		writeln("Entered compile method");
 		foreach ( ind; pop )
 		{
+		    if(whenExit()) return;
 			writeln("Taking indivi");
 			foreach( line; ind.program )
 			{
+			    if(whenExit()) return;
 				writeln("Compiling line");
 				line.compile(ind, world);
 			}
@@ -75,7 +77,7 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 		}		
 	}
 	
-	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
+	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType, bool delegate() whenExit )
 	{
 		writeln("Entered compile method");
 
@@ -84,6 +86,7 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 			auto fitts = new double[roundsPerInd];
 			foreach(j; 0..roundsPerInd)
 			{
+			    if(whenExit()) return;
 				world.initialize();
 				int step = 0;
 				ind.initialize();
@@ -92,6 +95,7 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 					
 					foreach( line; ind.program )
 					{
+					    if(whenExit()) return;
 						writeln("Compiling line");
 						line.compile(ind, world);
 						drawStep(ind, world);
@@ -185,25 +189,31 @@ public:
 		return pop;
 	}
 	
-	void envolveGeneration()
+	void envolveGeneration(bool delegate() whenExit)
 	{
 		writeln("Entering comp...");
 		foreach( ref pop; pops )
 		{
 			writeln("Pop init");
 			CompStg.initPop( pop, world, progtype );
+			if(whenExit()) return;
 			
 			writeln("Pop compile");
-			CompStg.compilePop( pop, world, progtype);
+			CompStg.compilePop( pop, world, progtype, whenExit);
+			if(whenExit()) return;
 			
 			writeln("GENERATION №", pop.generation, " results:");
 			CompStg.calcPopFitness( pop, world, progtype );
-			pop.saveBests("saves/AntsBests_");
-			pop.saveAll("saves/AntsAll_");
+			scope(exit)
+			{
+			    pop.saveBests("saves/AntsBests/");
+			    pop.saveAll("saves/AntsAll/");
+		    }
 			
-			Thread.sleep(dur!"msecs"(3000));
+			if(whenExit()) return;
 			pop = evolutor.formNextPopulation( pop, progtype );
 			pop.generation = pop.generation + 1;
+			if(whenExit()) return;
 		}
 	}
 	

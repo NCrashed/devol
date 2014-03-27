@@ -14,6 +14,7 @@ import std.conv;
 import std.string;
 import std.concurrency;
 import core.time;
+import core.thread;
 
 import derelict.sdl2.sdl;
 import derelict.sdl2.ttf;
@@ -66,19 +67,35 @@ public:
 		ants[Ant.Faces.WEST] = loadSurface("../media/textures/AntW.bmp");
 		
 		SDL_RenderClear(renderer);
+		eventThreadTid = spawn(&eventThread, thisTid);
 	}
 	
-	static void eventThread( Tid tid, immutable App app )
+	bool shouldExit()
 	{
+	    static bool done = false;
+	    
+	    auto res = receiveTimeout(10.dur!"msecs", (bool v) {});
+	    if(res) done = true;
+	    
+	    return done;
+	}
+	
+	static void eventThread(Tid tid)
+	{
+	    Thread.getThis.isDaemon(true);
 		SDL_Event event;
 
 		
 		bool done = false;
-		while ( !done && SDL_WaitEvent(&event) ) {
+		while ( !done && SDL_WaitEvent(&event) ) 
+		{
+		    const ubyte* state = SDL_GetKeyboardState(null);
 			switch (event.type) {
 				case SDL_KEYDOWN:
-					//done = 1;
-					send(tid, true);
+				    if(state[SDL_SCANCODE_ESCAPE])
+				    {
+				        tid.send(true);
+			        }
 				break;
 				default:
 				
@@ -150,6 +167,7 @@ public:
         SDL_Renderer* renderer;
         SDL_Event event;
         bool drawFrame = true;
+        Tid eventThreadTid;
 	}
 }
 
