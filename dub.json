@@ -7,16 +7,19 @@
                , "Nazgull09 <nazgull90@gmail.com>" ],
 	"license": "MIT",
     "targetPath": "bin",
+	"sourcePaths": [],
 	
     "configurations": [
         {
             "name": "core",
-            "targetType": "library"
+            "targetType": "library",
+            "sourcePaths": ["source/devol"]
         },
         {
             "name": "ant",
             "targetType": "executable",
             "targetName": "devol-ant",
+            "sourcePaths": ["source/devol", "source/ant"],
             "mainSourceFile": "ant/main.d",
             "dependencies": {
                 "derelict-util": ">=1.0.0",
