@@ -437,7 +437,7 @@ unittest
 			args ~= a1;
 		}
 	
-		Argument apply(IndAbstract ind, Line line, WorldAbstract world)
+		override Argument apply(IndAbstract ind, Line line, WorldAbstract world)
 		{
 			return mRetType.getNewArg();
 		}	
