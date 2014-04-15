@@ -5,7 +5,7 @@
     "authors": [ "NCrashed <ncrashed@gmail.com>"
                , "LeMarwin <lemarwin42@gmail.com>"
                , "Nazgull09 <nazgull90@gmail.com>" ],
-	
+	"license": "MIT",
     "targetPath": "bin",
 	
     "configurations": [
