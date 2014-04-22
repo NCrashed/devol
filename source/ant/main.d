@@ -115,7 +115,6 @@ void main(string[] args)
     } else
     {
         pop = comp.loadPopulation(new std.stream.File(savedPop, FileMode.In));
-        pop.saveAll("testLoadedPop/");
     }
     
     while(!app.shouldExit) {comp.envolveGeneration(() => app.shouldExit);}

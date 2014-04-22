@@ -295,6 +295,8 @@ class Line : Container, ISerializable
 	
 	override @property ulong leafs()
 	{
+	    if(args.length == 0) return 1;
+	    
 		ulong length = 0;
 		foreach(arg; args)
 			length += arg.leafs;

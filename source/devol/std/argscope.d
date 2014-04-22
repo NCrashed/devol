@@ -175,6 +175,8 @@ class ArgScope : Container
 	
 	override @property ulong leafs()
 	{
+	    if(lines.length == 0) return 1;
+	    
 		ulong res = 0;
 		foreach( l; lines)
 			res+=l.children;
