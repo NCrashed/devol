@@ -418,12 +418,12 @@ class Line : Container, ISerializable
 	
 	static Line loadBinary(InputStream stream)
 	{
-	    auto line = new Line(); std.stdio.writeln("Loading line");
+	    auto line = new Line();
 	    
-	    line.pOp = Operator.loadBinary(stream); std.stdio.writeln("Operator loaded");
+	    line.pOp = Operator.loadBinary(stream);
 	    
 	    ulong argsLength;
-	    stream.read(argsLength); std.stdio.writeln("args length", argsLength);
+	    stream.read(argsLength);
 	    auto builder = appender!(Argument[]);
 	    
 	    foreach(i; 0..cast(size_t)argsLength)
@@ -433,15 +433,13 @@ class Line : Container, ISerializable
 	        
 	        if(mark == "line")
 	        {
-	            std.stdio.writeln(" loading argument as line");
 	            builder.put(Line.loadBinary(stream));
 	        } else if(mark == "scope")
 	        {
-	            std.stdio.writeln(" loading argument as scope");
 	            builder.put(ArgScope.loadBinary(stream));
 	        } else if(mark == "plain")
 	        {
-	            auto type = line.pOp[i].type; std.stdio.writeln(" loading argument with type ", type.name);
+	            auto type = line.pOp[i].type; 
 	            builder.put(type.loadArgument(stream));
 	        }
 	    }

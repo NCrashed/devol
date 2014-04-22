@@ -40,49 +40,50 @@ alias 	GameCompilation!(
 	
 	function void(ind, world) // draw step
 	{
-		auto ai = cast(Ant)(ind);
-		auto aw = cast(AntWorld)(world);
-		auto app = App.getSingleton();
-		
-//		version(linux)
-//			system("clear");
-//		version(Windows)
-//			system("cls");
-		
-		app.clear();	
-			
-		foreach(uint j,ref l; aw.getMap() )
-		{
-			foreach(uint i,ref c; l)
-			{
-				if ( j == ai.x && i == ai.y )
-				{
-				    app.draw(app.ants[ai.Direction], (j+1)*32u, (i+1)*32u, 32u, 32u);
-				}
-				else if (c)
-					app.draw(app.food, (j+1)*32u , (i+1)*32u, 32u, 32u);
-				else
-					app.draw(app.empty, (j+1)*32u , (i+1)*32u, 32u, 32u);
-			}
-		}
-		
-		foreach( i; 0..aw.size+2)
-			app.draw(app.wall, i*32u, 0, 32u, 32u);
-		foreach( i; 0..aw.size+2)
-			app.draw(app.wall, i*32u, (aw.size+1)*32u, 32u, 32u);
-		foreach( i; 0..aw.size+2)
-			app.draw(app.wall, 0, i*32u, 32u, 32u);				
-		foreach( i; 0..aw.size+2)
-			app.draw(app.wall, (aw.size+1)*32u, i*32u, 32u, 32u);	
-		
-		app.present();									
+	    version(NoGraphicsOutput)
+	    {
+	        
+	    } else
+	    {
+    		auto ai = cast(Ant)(ind);
+    		auto aw = cast(AntWorld)(world);
+    		auto app = App.getSingleton();
+    		
+    		app.clear();	
+    			
+    		foreach(uint j,ref l; aw.getMap() )
+    		{
+    			foreach(uint i,ref c; l)
+    			{
+    				if ( j == ai.x && i == ai.y )
+    				{
+    				    app.draw(app.ants[ai.Direction], (j+1)*32u, (i+1)*32u, 32u, 32u);
+    				}
+    				else if (c)
+    					app.draw(app.food, (j+1)*32u , (i+1)*32u, 32u, 32u);
+    				else
+    					app.draw(app.empty, (j+1)*32u , (i+1)*32u, 32u, 32u);
+    			}
+    		}
+    		
+    		foreach( i; 0..aw.size+2)
+    			app.draw(app.wall, i*32u, 0, 32u, 32u);
+    		foreach( i; 0..aw.size+2)
+    			app.draw(app.wall, i*32u, (aw.size+1)*32u, 32u, 32u);
+    		foreach( i; 0..aw.size+2)
+    			app.draw(app.wall, 0, i*32u, 32u, 32u);				
+    		foreach( i; 0..aw.size+2)
+    			app.draw(app.wall, (aw.size+1)*32u, i*32u, 32u, 32u);	
+    		
+    		app.present();	
+		}								
 	},
 	function void(pop, world) // draw final
 	{
-		auto ap = cast(AntPopulation)(pop);
-		auto aw = cast(AntWorld)(world);			
+//		auto ap = cast(AntPopulation)(pop);
+//		auto aw = cast(AntWorld)(world);			
 	},
-	1
+	3
 )MyCompilaton;
 
 alias Compiler!(

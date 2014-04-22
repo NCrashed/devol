@@ -236,13 +236,13 @@ class Population(alias nameChecker, IndType)
 	{
 	    auto pop = new thistype();
 	    char[] popName;
-	    stream.read(popName); std.stdio.writeln(popName);
+	    stream.read(popName);
 	    pop.mName = popName.idup;
 	    
-	    stream.read(pop.iGeneration); std.stdio.writeln(pop.iGeneration);
+	    stream.read(pop.iGeneration);
 	    
 	    ulong indsLength;
-	    stream.read(indsLength); std.stdio.writeln(indsLength);
+	    stream.read(indsLength);
 	    auto builder = appender!(Individ[]);
 	    foreach(i; 0..cast(size_t)indsLength)
 	    {
@@ -257,7 +257,6 @@ class Population(alias nameChecker, IndType)
 	    }
 	    pop.inds = builder.data;
 	    
-	    std.stdio.writeln(pop.inds);
 	    return pop;
 	}
 	

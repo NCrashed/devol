@@ -153,14 +153,20 @@ class AntWorld: WorldAbstract
 			
 			void printGr()
 			{
-				//writeln("Getting singleton");
-				auto app = App.getSingleton();
-				assert(app !is null);
-				
-				app.clear();
-				draw(app, app.food, app.empty, app.wall);
-				app.draw(app.ants[Grower.Direction], 32u*(Grower.x+1), 32u*(Grower.y+1), 32u, 32u);
-				app.present();
+                version(NoGraphicsOutput)
+                {
+                    
+                } else
+                {
+    				//writeln("Getting singleton");
+    				auto app = App.getSingleton();
+    				assert(app !is null);
+    				
+    				app.clear();
+    				draw(app, app.food, app.empty, app.wall);
+    				app.draw(app.ants[Grower.Direction], 32u*(Grower.x+1), 32u*(Grower.y+1), 32u, 32u);
+    				app.present();
+				}
 			}
 			
 			printGr();
@@ -198,34 +204,40 @@ class AntWorld: WorldAbstract
 	
 	void draw(App app, SDL_Texture* food, SDL_Texture* empty, SDL_Texture* wall)
 	{
-		assert(food !is null);
-		assert(empty !is null);
-		
-		foreach(uint j, l; map )
-		{
-			foreach(uint i, c; l)
-			{
-				if (c)
-				{
-					//writeln("drawing food at ", (j+1)*32u, " ", (i+1)*32u);
-					app.draw(food, (j+1)*32u , (i+1)*32u, 32u, 32u);
-				}
-				else
-				{	
-					//writeln("drawing empty at ", (j+1)*32u, " ", (i+1)*32u);
-					app.draw(empty, (j+1)*32u , (i+1)*32u, 32u, 32u);
-				}
-			}
-		}		
-		
-		foreach(uint i; 0..map.length+2)
-			app.draw(wall, i*32u, 0, 32u, 32u);
-		foreach(uint i; 0..map.length+2)
-			app.draw(wall, i*32u, (cast(uint)map.length+1)*32u, 32u, 32u);
-		foreach(uint i; 0..map.length+2)
-			app.draw(wall, 0, i*32u, 32u, 32u);				
-		foreach(uint i; 0..map.length+2)
-			app.draw(wall, (cast(uint)map.length+1)*32u, i*32u, 32u, 32u);	
+        version(NoGraphicsOutput)
+        {
+            
+        } else
+        {
+    		assert(food !is null);
+    		assert(empty !is null);
+    		
+    		foreach(uint j, l; map )
+    		{
+    			foreach(uint i, c; l)
+    			{
+    				if (c)
+    				{
+    					//writeln("drawing food at ", (j+1)*32u, " ", (i+1)*32u);
+    					app.draw(food, (j+1)*32u , (i+1)*32u, 32u, 32u);
+    				}
+    				else
+    				{	
+    					//writeln("drawing empty at ", (j+1)*32u, " ", (i+1)*32u);
+    					app.draw(empty, (j+1)*32u , (i+1)*32u, 32u, 32u);
+    				}
+    			}
+    		}		
+    		
+    		foreach(uint i; 0..map.length+2)
+    			app.draw(wall, i*32u, 0, 32u, 32u);
+    		foreach(uint i; 0..map.length+2)
+    			app.draw(wall, i*32u, (cast(uint)map.length+1)*32u, 32u, 32u);
+    		foreach(uint i; 0..map.length+2)
+    			app.draw(wall, 0, i*32u, 32u, 32u);				
+    		foreach(uint i; 0..map.length+2)
+    			app.draw(wall, (cast(uint)map.length+1)*32u, i*32u, 32u, 32u);	
+		}
 	}
 	
 	}

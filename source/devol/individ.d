@@ -189,22 +189,22 @@ class Individ : IndAbstract, ISerializable
             return builder.data;
 	    }
 	    
-	    auto ind = new Individ; std.stdio.writeln("loading individ");
+	    auto ind = new Individ;
 	    
 	    ulong programLength;
-	    stream.read(programLength); std.stdio.writeln("program length", programLength);
+	    stream.read(programLength);
 	    ind.mProgram = loadLineArray(cast(size_t)programLength);
 	    
 	    ulong memoryLength;
-        stream.read(memoryLength); std.stdio.writeln("memory length", memoryLength);
+        stream.read(memoryLength);
         ind.mMemory = loadLineArray(cast(size_t)memoryLength);
         
         ulong inValsLength;
-        stream.read(inValsLength); std.stdio.writeln("inVals length", inValsLength);
+        stream.read(inValsLength);
         ind.inVals = loadLineArray(cast(size_t)inValsLength);
         
         ulong outValsLength;
-        stream.read(outValsLength); std.stdio.writeln("outVals length", outValsLength);
+        stream.read(outValsLength);
         ind.outVals = loadLineArray(cast(size_t)outValsLength);
         
         stream.read(ind.mFitness);

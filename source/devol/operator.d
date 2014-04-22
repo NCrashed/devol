@@ -133,9 +133,8 @@ abstract class Operator : ISerializable
 	
 	static Operator loadBinary(InputStream stream)
 	{
-	    std.stdio.writeln(OperatorMng.getSingleton().strings);
 	    char[] opname;
-	    stream.read(opname); std.stdio.writeln(opname);
+	    stream.read(opname);
 	    
 	    return OperatorMng.getSingleton().getOperator(opname.idup);
 	}

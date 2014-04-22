@@ -24,6 +24,17 @@
             "dependencies": {
                 "derelict-sdl2": "~master"
             }
+        },
+        {
+            "name": "ant-nographics",
+            "targetType": "executable",
+            "targetName": "devol-ant",
+            "sourcePaths": ["source/devol", "source/ant"],
+            "mainSourceFile": "ant/main.d",
+            "versions": ["NoGraphicsOutput"],
+            "dependencies": {
+                "derelict-sdl2": "~master"
+            }
         }
     ]
 }
