@@ -9,6 +9,7 @@ module devol.std.typepod;
 
 import std.random;
 import std.conv;
+import std.stream;
 
 public
 {
@@ -65,5 +66,21 @@ class TypePod(T) : Type
 			} while( except( arg.val, exVal) );			
 		}
 		return arg;
+	}
+	
+	override Argument loadArgument(InputStream stream)
+	{
+	    static if(is(T == bool))
+	    {
+            ubyte val;
+            stream.read(val);
+            
+            return new ArgPod!T(cast(bool)val);
+	    } else
+	    {
+            T val;
+            stream.read(val);
+            return new ArgPod!T(val);
+	    }
 	}	
 }

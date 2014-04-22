@@ -129,7 +129,7 @@ public:
 	
     void draw(SDL_Texture* tex, uint x, uint y, uint w, uint h)
     {
-        if(drawFrame)
+        //if(drawFrame)
             SDL_RenderCopy(renderer, tex, null, new SDL_Rect(x, y, w, h));
         
     }

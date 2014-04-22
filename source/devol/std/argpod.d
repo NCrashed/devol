@@ -9,14 +9,20 @@ module devol.std.argpod;
 
 import std.conv;
 import std.random;
-
+import devol.serializable;
 import devol.typemng;
 
-class ArgPod(T) : Argument
+class ArgPod(T) : Argument, ISerializable
 {
 	this()
 	{
 		super( TypeMng.getSingleton().getType("Type"~T.stringof) );
+	}
+	
+	this(T val)
+	{
+	    this();
+	    opAssign(val);
 	}
 	
 	ref ArgPod!T opAssign(Argument val)
@@ -85,6 +91,17 @@ class ArgPod(T) : Argument
 		auto darg = new ArgPod!T();
 		darg.mVal = mVal;
 		return darg;
+	}
+	
+	void saveBinary(OutputStream stream)
+	{
+	    static if(is(T == bool))
+	    {
+	        stream.write(cast(ubyte)mVal);
+	    } else
+	    {
+	        stream.write(mVal);
+        }
 	}
 	
 	protected T mVal;

@@ -5,7 +5,7 @@
 *             LeMarwin <lemarwin42@gmail.com>,
 *             Nazgull09 <nazgull90@gmail.com>
 */
-module devol.line;
+module devol.std.line;
 
 import std.stdio;
 import std.array;
@@ -14,6 +14,7 @@ import std.random;
 import std.algorithm;
 
 import devol.typemng;
+import devol.serializable;
 
 public
 {
@@ -25,7 +26,7 @@ public
 	import devol.std.random;
 }
 
-class Line : Container
+class Line : Container, ISerializable
 {
 	this()
 	{
@@ -120,7 +121,7 @@ class Line : Container
 		}
 	}
 	
-	override void removeElement(int i)
+	override void removeElement(size_t i)
 	{
 		if ( i > 0 && i < args.length )
 			args.remove(i);
@@ -174,28 +175,28 @@ class Line : Container
 		args = null;
 	}
 	
-	bool isSubline( uint i )
+	bool isSubline( size_t i )
 	{
 		if ( i >= args.length ) return false;
 		
 		return cast(Line)(args[i]) !is null;
 	}
 	
-	Line getSubline( uint i )
+	Line getSubline( size_t i )
 	{
 		if ( i >= args.length ) return null;
 		
 		return cast(Line)(args[i]);
 	}
 	
-	bool isScope( uint i)
+	bool isScope( size_t i)
 	{
 		if ( i >= args.length ) return false;
 		
 		return cast(ArgScope)(args[i]) !is null;
 	}
 	
-	ArgScope getScope( uint i )
+	ArgScope getScope( size_t i )
 	{
 		if ( i >= args.length ) return null;
 		
@@ -204,11 +205,11 @@ class Line : Container
 	
 	Argument compile(IndAbstract ind, WorldAbstract world)
 	{
-		writeln("Compling line");
+		//writeln("Compling line");
 		Line dline = this.dup;
 		for( int i=0; i < dline.length; i++)
 		{
-			writeln("Compiling arg ", i);
+			//writeln("Compiling arg ", i);
 			if ( pOp.style != ArgsStyle.CONTROL_STYLE || i==0 )
 			{
 				auto ascope = dline.getScope(i);
@@ -227,7 +228,7 @@ class Line : Container
 						dline[i] = aline.compile(ind, world);
 					else
 					{
-						writeln("Search convertors for ", dline[i].type.name, " and ", dline.operator[i].type.name);
+						//writeln("Search convertors for ", dline[i].type.name, " and ", dline.operator[i].type.name);
 						if (dline[i].type.name != dline.operator[i].type.name)
 						{
 							Argument convarg = dline.operator[i].type.convert( dline[1] );
@@ -241,7 +242,7 @@ class Line : Container
 			}
 		}
 		assert(pOp);
-		writeln("Applying op ", pOp.name);
+		//writeln("Applying op ", pOp.name);
 		return pOp.apply(ind, dline, world);		
 	}
 	
@@ -258,30 +259,30 @@ class Line : Container
 		return nline;
 	}
 	
-	override Argument opIndex( uint i )
+	override Argument opIndex( size_t i )
 	{
 		return args[i];
 	}
 	
-	override void opIndexAssign( Argument val, uint i )
+	override void opIndexAssign( Argument val, size_t i )
 	{
 		if (i >= args.length) return;
 		args[i] = val;
 	}
 	
-	override Argument[] opSlice( uint a, uint b )
+	override Argument[] opSlice( size_t a, size_t b )
 	{
 		return args[a..b];
 	}
 	
-	override uint opDollar()
+	override size_t opDollar()
 	{
-		return cast(uint)(args.length);
+		return args.length;
 	}
 	
-	override @property uint length()
+	override @property size_t length()
 	{
-		return cast(uint)(args.length);
+		return args.length;
 	}
 	
 	override @property ulong children()
@@ -413,6 +414,56 @@ class Line : Container
 			ret ~= getTabs(depth) ~ "}\n";
 		}
 		return ret;
+	}
+	
+	static Line loadBinary(InputStream stream)
+	{
+	    auto line = new Line(); std.stdio.writeln("Loading line");
+	    
+	    line.pOp = Operator.loadBinary(stream); std.stdio.writeln("Operator loaded");
+	    
+	    ulong argsLength;
+	    stream.read(argsLength); std.stdio.writeln("args length", argsLength);
+	    auto builder = appender!(Argument[]);
+	    
+	    foreach(i; 0..cast(size_t)argsLength)
+	    {
+	        char[] mark;
+	        stream.read(mark);
+	        
+	        if(mark == "line")
+	        {
+	            std.stdio.writeln(" loading argument as line");
+	            builder.put(Line.loadBinary(stream));
+	        } else if(mark == "scope")
+	        {
+	            std.stdio.writeln(" loading argument as scope");
+	            builder.put(ArgScope.loadBinary(stream));
+	        } else if(mark == "plain")
+	        {
+	            auto type = line.pOp[i].type; std.stdio.writeln(" loading argument with type ", type.name);
+	            builder.put(type.loadArgument(stream));
+	        }
+	    }
+	    line.args = builder.data;
+	    
+	    return line;
+	}
+	
+	void saveBinary(OutputStream stream)
+	{
+	    stream.write("line");
+	    
+	    pOp.saveBinary(stream);
+	    stream.write(cast(ulong)args.length);
+	    foreach(arg; args)
+	    {
+	        if(cast(Line)arg is null && cast(ArgScope)arg is null)
+	        {
+	            stream.write("plain");
+            }
+	        arg.saveBinary(stream);
+	    }
 	}
 	
 	private Argument[] args;

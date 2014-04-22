@@ -8,8 +8,9 @@
 module devol.argument;
 
 import devol.type;
+import devol.serializable;
 
-abstract class Argument
+abstract class Argument : ISerializable
 {
 	this(Type type)
 	{
@@ -38,6 +39,11 @@ abstract class Argument
 	}
 	
 	private Type pType; 
+	
+//	void saveBinary(OutputStream stream)
+//	{
+//	    pType.saveBinary(stream);
+//	}
 	
 	void randomChange();
 	void randomChange(string maxChange);

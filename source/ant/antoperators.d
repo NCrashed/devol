@@ -16,7 +16,7 @@ import devol.operatormng;
 import devol.argument;
 
 import devol.individ;
-import devol.line;
+import devol.std.line;
 import devol.world;
 
 import devol.typemng;
@@ -37,12 +37,10 @@ class GoForward : Operator
 	
 	override Argument apply(IndAbstract individ, Line line, WorldAbstract world)
 	{
-		version(linux)
-		{system("beep");}
-		writeln("Appling GoForward");
+		//writeln("Appling GoForward");
 		auto ind = cast(Ant)(individ);	
 		auto Wrld = cast(AntWorld)(world);
-		writeln("Casting success: ", ind !is null, " " ,Wrld !is null);	
+		//writeln("Casting success: ", ind !is null, " " ,Wrld !is null);	
 		final switch(ind.Direction)
 		{
 			case ind.Faces.SOUTH:
@@ -62,14 +60,14 @@ class GoForward : Operator
 					ind.x+=1;
 				break;
 		}
-		writeln("checking food");
+		//writeln("checking food");
 		if(Wrld.checkForFood(ind.x, ind.y) && !ind.isCheater())
 			{
-				writeln("eating");
+				//writeln("eating");
 				ind.FoodCount++;
 				Wrld.removeFood(ind.x,ind.y);
 			}
-		writeln("return");
+		//writeln("return");
 		return voidtype.getNewArg();
 	}
 }
@@ -86,9 +84,9 @@ class TurnLeft : Operator
 	
 	override Argument apply(IndAbstract individ, Line line, WorldAbstract world)
 	{
-		writeln("Appling TurnLeft");
+		//writeln("Appling TurnLeft");
 		auto ind = cast(Ant)(individ);
-		writeln("Casting success: ", ind !is null);
+		//writeln("Casting success: ", ind !is null);
 		final switch(ind.Direction)
 		{
 			case ind.Faces.NORTH:
@@ -120,9 +118,9 @@ class TurnRight : Operator
 	
 	override Argument apply(IndAbstract individ, Line line, WorldAbstract world)
 	{
-		writeln("Appling TurnRight");
+		//writeln("Appling TurnRight");
 		auto ind = cast(Ant)(individ);
-		writeln("Casting success: ", ind !is null);
+		//writeln("Casting success: ", ind !is null);
 		final switch(ind.Direction)
 		{
 			case ind.Faces.NORTH:

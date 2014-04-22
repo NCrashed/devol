@@ -12,9 +12,11 @@ import std.conv;
 
 import devol.type;
 import devol.argument;
-import devol.line;
+import devol.std.line;
 import devol.world;
 import devol.individ;
+import devol.serializable;
+import devol.operatormng;
 
 enum ArgsStyle
 {
@@ -34,7 +36,7 @@ struct ArgInfo
 	string max;
 }
 
-abstract class Operator
+abstract class Operator : ISerializable
 {
 	this(string name, string discr, ArgsStyle style)
 	{
@@ -44,7 +46,7 @@ abstract class Operator
 		
 		args = new ArgInfo[0];
 		
-		assert(mRetType,"Return type isn't setted!");
+		assert(mRetType,"Return type isn't set!");
 	}
 	
 	@property int argsNumber()
@@ -72,19 +74,19 @@ abstract class Operator
 		return mRetType;
 	}
 	
-	ArgInfo opIndex( uint i )
+	ArgInfo opIndex( size_t i )
 	{
 		return args[i];
 	}
 	
-	ArgInfo[] opSlice( uint a, uint b )
+	ArgInfo[] opSlice( size_t a, size_t b )
 	{
 		return args[a..b];
 	}
 	
-	uint opDollar()
+	size_t opDollar()
 	{
-		return cast(uint)(args.length);
+		return args.length;
 	}
 	
 	int opApply(int delegate(ref ArgInfo) dg)
@@ -99,7 +101,7 @@ abstract class Operator
 		return result;
 	}
 	
-	Argument generateArg( uint i )
+	Argument generateArg( size_t i )
 	{	
 		auto ainfo = args[i];
 		return ainfo.type.getNewArg(ainfo.min, ainfo.max, ainfo.exVals);
@@ -108,7 +110,7 @@ abstract class Operator
 	Argument apply(IndAbstract ind, Line line, WorldAbstract world)
 	in
 	{
-		assert( line.length == args.length, text("Critical error: operator ", name, ", geted args count is ", line.length, " but needed ", args.length, "!"));
+		assert( line.length == args.length, text("Critical error: operator ", name, ", got args count is ", line.length, " but needed ", args.length, "!"));
 		foreach(i,ai; args)
 		{
 			assert( ai.type.name == line[0].type.name, text("Critical error: operator ", name, ", argument №", i, " is type of ", ai.type.name, " but needed ", line[0].type.name, "!"));
@@ -116,11 +118,26 @@ abstract class Operator
 	}
 	out(result)
 	{
-		assert( result !is null, text("Critical error: operator ", name, ", return value is null! Forgeted to overload std apply?")); 
+		assert( result !is null, text("Critical error: operator ", name, ", return value is null! Forgotten to overload std apply?")); 
 	}
 	body
 	{
 		return null;
+	}
+	
+	void saveBinary(OutputStream stream)
+	{
+	    assert(sName != "", "Operator name is empty string!");
+	    stream.write(sName);
+	}
+	
+	static Operator loadBinary(InputStream stream)
+	{
+	    std.stdio.writeln(OperatorMng.getSingleton().strings);
+	    char[] opname;
+	    stream.read(opname); std.stdio.writeln(opname);
+	    
+	    return OperatorMng.getSingleton().getOperator(opname.idup);
 	}
 	
 protected:

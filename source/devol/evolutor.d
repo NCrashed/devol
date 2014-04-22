@@ -98,7 +98,7 @@ class Evolutor
 				uint s = uniform!"[]"(ptype.scopeMinSize, ptype.scopeMaxSize);
 				scope(success) line[j] = ascope;
 				
-				writeln("Generating scope");
+				//writeln("Generating scope");
 				foreach(i; 0..s)
 				{
 					try
@@ -156,7 +156,7 @@ class Evolutor
 			}
 		} else
 		{
-			debug writeln("Type is container, generating any op.");
+			//debug writeln("Type is container, generating any op.");
 			op = opmng.getRndOperator();
 			if (op is null) 
 			{
@@ -339,7 +339,7 @@ class Evolutor
 			{
 				return null;
 			}
-			debug writeln("Распределение вероятностей по листам: ", chances);
+			//debug writeln("Распределение вероятностей по листам: ", chances);
 			
 			randomRange!(
 				(int k)
@@ -456,7 +456,7 @@ class Evolutor
 						{
 							if (k==0)
 							{
-								debug writeln("Selected to stop. Finded 1st tree");
+								//debug writeln("Selected to stop. Finded 1st tree");
 								if (prevCont !is null)
 								{
 									innerSwap(prevCont, prevContI);
@@ -466,14 +466,14 @@ class Evolutor
 							else
 								if (cast(Container)(cont[k-1]) is null)
 								{
-									debug writeln("Selected leaf. Finded 1st tree");
+									//debug writeln("Selected leaf. Finded 1st tree");
 									innerSwap(cont, k-1);
 									
 									end = true;
 								}
 								else 
 								{
-									debug writeln("Going down");
+									//debug writeln("Going down");
 									prevCont = cont;
 									prevContI = k-1;
 									cont = cast(Container)(cont[k-1]);
@@ -526,7 +526,7 @@ class Evolutor
 		chances[1] = ptype.mutationReplaceChance();
 		chances[2] = ptype.mutationDeleteChance();
 		
-		debug writeln("Mutation chances: ", chances);
+		//debug writeln("Mutation chances: ", chances);
 		
 		randomRange!(
 			(int t)
@@ -535,7 +535,7 @@ class Evolutor
 				{
 					case 0: // mutationChangeChance
 					{
-						debug writeln("Change");
+						//debug writeln("Change");
 						if (line.length > 0 && line.leafs > 0)
 						{
 							auto arg = getRandomLeafStd(line);
@@ -546,7 +546,7 @@ class Evolutor
 					}
 					case 1: // mutationReplaceChance
 					{
-						debug writeln("Replace");
+						//debug writeln("Replace");
 						if ( line.children > 1 )
 							replaceRandomElementStd(line, 
 								(Type t)
@@ -558,7 +558,7 @@ class Evolutor
 					}
 					case 2: // mutationDeleteChance
 					{
-						debug writeln("Delete");
+						//debug writeln("Delete");
 						replaceRandomElementStd(line, 
 							(Type t)
 							{
@@ -578,16 +578,16 @@ class Evolutor
 	bool crossingoverStd(IndAbstract pIndA, IndAbstract pIndB, ProgTypeAbstract ptype)
 	{
 		if (pIndA.program.length == 0 || pIndB.program.length == 0) return false;
-		debug writeln("Starting crossingover");
+		//debug writeln("Starting crossingover");
 		
 		ulong length = pIndA.program.length;
 		if (pIndB.program.length < length)
 			length = pIndB.program.length;
-		debug writeln("Selected length:", length);
+		//debug writeln("Selected length:", length);
 			
 		foreach(ulong i; 0..length/2+1)
 		{
-			debug writeln("Starting ",i," swapping");
+			//debug writeln("Starting ",i," swapping");
 			size_t kA = uniform(0,pIndA.program.length);
 			size_t kB = uniform(0,pIndB.program.length);
 			Line lineA = pIndA.program[kA];
@@ -596,11 +596,11 @@ class Evolutor
 			/// Перемена местами двух деревьев полностью
 			if ( uniform!"[]"(0,1) < 1./cast(double)(lineA.children+lineB.children))
 			{
-				debug writeln("Swapping roots");
+				//debug writeln("Swapping roots");
 				swap(pIndA.program[kA], pIndB.program[kB]);
 			} else /// Обмен поддеревьями
 			{
-				debug writeln("Swapping subtrees");
+				//debug writeln("Swapping subtrees");
 				if (!swapRandomElements( lineA, lineB, ptype ))
 					return false;
 				
@@ -623,19 +623,19 @@ class Evolutor
 		if (pop.length == 0) return pop;
 		
 		//Вычисляем среднюю приспособленность
-		debug writeln("Вычисляем сумму приспособленность: ");
+		//debug writeln("Вычисляем сумму приспособленность: ");
 		double averFitness = 0;
 		foreach( ind; pop)
 			averFitness += ind.fitness;
 		
 		auto newPop = pop.dup;
 		newPop.clear();
-		debug writeln( "averFitness = ", averFitness );
+		//debug writeln( "averFitness = ", averFitness );
 		
 		// Копируем лучших индивидов
-		debug writeln("Копируем лучших индивидов");
+		//debug writeln("Копируем лучших индивидов");
 		int k = cast(int)round((ptype.copyingPart()*pop.length));
-		debug writeln("Будет выбрано ", k, " лучших муравьев");
+		//debug writeln("Будет выбрано ", k, " лучших муравьев");
 		
 		auto sortedInds = new pop.IndividType[0];
 		foreach( ind; pop)
@@ -644,23 +644,23 @@ class Evolutor
 		sort!("a.fitness > b.fitness")(sortedInds);
 		foreach(i; 0..k)
 		{
-			debug writeln("Добавляем ", i, " из лучших");
+			//debug writeln("Добавляем ", i, " из лучших");
 			newPop.addIndivid(cast(newPop.IndividType)(sortedInds[i].dup));
 		}
 				
 		debug
 		{
-			 write("Отсортированные индивиды по фитнес: [");
+			 //write("Отсортированные индивиды по фитнес: [");
 			 foreach(ind; sortedInds)
 				write(ind.fitness,",");
-			 writeln("]");
-			 writeln("Размер новой популяции ", newPop.length);
+			 //writeln("]");
+			 //writeln("Размер новой популяции ", newPop.length);
 		}
 		// Формируем шансы для операций
 		auto opChances = new double[2];
 		opChances[0] = ptype.mutationChance();
 		opChances[1] = ptype.crossingoverChance();
-		debug writeln("Шансы на операции: ", opChances);
+		//debug writeln("Шансы на операции: ", opChances);
 		
 		// Формируем шансы индивидов
 		auto indChances = new double[0];
@@ -668,9 +668,9 @@ class Evolutor
 		{
 			indChances ~= cast(double)(ind.fitness)/cast(double)(averFitness);
 		}
-		debug writeln("Шансы индивидов: ", indChances);
+		//debug writeln("Шансы индивидов: ", indChances);
 		
-		debug writeln("Начинаем формировать новую популяцию:");
+		//debug writeln("Начинаем формировать новую популяцию:");
 		while( newPop.length < pop.length )
 		{
 			int opSelected;
@@ -678,22 +678,22 @@ class Evolutor
 			
 			if (opSelected == 0) // mutationChance
 			{
-				debug writeln("Выбрана мутация");
+				//debug writeln("Выбрана мутация");
 				randomRange!(
 					(int s)
 					{
-						debug writeln("Выбран индивид №", s);
+						//debug writeln("Выбран индивид №", s);
 						auto ind = cast(pop.IndividType)pop[s].dup;
-						debug writeln("Был: ", ind.programString());
+						//debug writeln("Был: ", ind.programString());
 						mutationStd( ind, ptype);
-						debug writeln("Стал: ", ind.programString());
+						//debug writeln("Стал: ", ind.programString());
 						newPop.addIndivid( ind );
 					}
 				)(indChances);
 			} else // crossingoverChance
 			{
 				// Замечен странный баг с вложенными лямбдами, поэтому передаю занчения вверх
-				debug writeln("Выбран кроссинговер");
+				//debug writeln("Выбран кроссинговер");
 				int iInd1;
 				int iInd2;
 				randomRange!((int s1){iInd1 = s1;})(indChances);
@@ -701,12 +701,12 @@ class Evolutor
 				auto pIndA = cast(pop.IndividType)pop[iInd1].dup;
 				auto pIndB = cast(pop.IndividType)pop[iInd2].dup;
 				
-				debug writeln("Выбраны индивиды №", iInd1, " и №", iInd2);
-				debug writeln("Был: ", pIndA.programString());
-				debug writeln("Был: ", pIndB.programString());
+				//debug writeln("Выбраны индивиды №", iInd1, " и №", iInd2);
+				//debug writeln("Был: ", pIndA.programString());
+				//debug writeln("Был: ", pIndB.programString());
 				crossingoverStd(pIndA, pIndB, ptype);
-				debug writeln("Стал: ", pIndA.programString());
-				debug writeln("Стал: ", pIndB.programString());
+				//debug writeln("Стал: ", pIndA.programString());
+				//debug writeln("Стал: ", pIndB.programString());
 				
 				newPop.addIndivid( pIndA );
 				if (newPop.length < pop.length)

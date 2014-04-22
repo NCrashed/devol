@@ -9,6 +9,7 @@ module devol.std.argvoid;
 
 import devol.argument;
 import devol.typemng;
+import std.stream;
 
 class ArgVoid : Argument
 {
@@ -40,5 +41,9 @@ class ArgVoid : Argument
 	override @property Argument dup()
 	{
 		return new ArgVoid();
+	}
+	
+	void saveBinary(OutputStream stream)
+	{
 	}
 }

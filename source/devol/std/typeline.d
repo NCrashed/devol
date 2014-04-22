@@ -8,11 +8,12 @@
 module devol.std.typeline;
 
 import devol.typemng;
+import std.stream;
 
 public 
 {
 	import devol.type;
-	import devol.line;
+	import devol.std.line;
 	import devol.argument;
 }
 
@@ -32,5 +33,9 @@ class TypeLine : Type
 	{
 		return new Line;
 	}
-		
+	
+	override Argument loadArgument(InputStream stream)
+	{
+	    return Line.loadBinary(stream);
+	}	
 }

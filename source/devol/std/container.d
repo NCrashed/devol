@@ -28,14 +28,16 @@ abstract class Container : Argument
 	void replaceRandomElement(Argument delegate(Type t) del, double[] chances);
 	
 	void addElement(Argument arg);
-	void removeElement(int i);
+	void removeElement(size_t i);
 	void removeAll();
 	
 	int opApply(int delegate(Argument) del);
-	Argument opIndex( uint i );
-	void opIndexAssign( Argument val, uint i );
-	Argument[] opSlice( uint a, uint b );
+	Argument opIndex( size_t i );
+	void opIndexAssign( Argument val, size_t i );
+	Argument[] opSlice( size_t a, size_t b );
 	
-	uint opDollar();
-	@property uint length();
+	size_t opDollar();
+	@property size_t length();
+	
+	
 }

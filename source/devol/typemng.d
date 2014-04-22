@@ -8,6 +8,7 @@
 module devol.typemng;
 
 import std.stdio;
+import std.conv;
 
 import devol.singleton;
 
@@ -38,7 +39,7 @@ class TypeMng : Singleton!TypeMng
 		Type t = new T();
 		
 		if ( t.name in mTypes )
-			throw new Exception("This type already registered!");
+			throw new Exception(text("Type ", t.name," already registered!"));
 		
 		mTypes[t.name] = t;
 	}

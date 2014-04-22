@@ -15,13 +15,15 @@ import std.array;
 import std.algorithm;
 import std.conv;
 import std.file;
+import std.path;
+import devol.serializable;
 
 public
 {
 	import devol.individ;
 }
 
-interface PopAbstract
+interface PopAbstract : ISerializable
 {
 	void genName(int size);
 	@property string name();
@@ -47,10 +49,10 @@ class Population(alias nameChecker, IndType)
 	if ( is(typeof(nameChecker()) == string) )
 	: PopAbstract
 {
-public:
-	static int 		DefNameLength = 10;
-	static string 	DefNameChars = getDefChars();
-	 
+	enum DefNameLength = 10;
+	enum DefNameChars = getDefChars();
+	
+	alias Population!(nameChecker, IndType) thistype;
 	alias IndType IndividType;
 	
 	@property uint generation()
@@ -66,12 +68,12 @@ public:
 	
 	this()
 	{
-		inds = new IndType[0];
+		inds = new Individ[0];
 	}
 	
 	this(uint size)
 	{
-		inds = new IndType[size];
+		inds = new Individ[size];
 		foreach( ref ind; inds)
 		{
 			ind = new IndType;
@@ -114,7 +116,7 @@ public:
 	
 	IndType opIndex( uint i )
 	{
-		return inds[i];
+		return cast(IndType)inds[i];
 	}
 	
 	IndAbstract[] opSlice( uint a, uint b )
@@ -159,14 +161,15 @@ public:
 
 		auto sortedInds = inds.sort!"a.fitness > b.fitness";
 		
-		IndType best;
+		Individ best;
 		int k = 0;
 		
-		File* f;
+		std.stdio.File* f;
 		try
 		{
-		    mkdirRecurse(filename);
-			f = new File(filename~mName~"_g"~to!string(iGeneration), "w");
+            mkdirRecurse(filename);
+                
+			f = new std.stdio.File(filename~mName~"_g"~to!string(iGeneration), "w");
 		
 			do
 			{
@@ -183,11 +186,12 @@ public:
 	
 	void saveAll(string filename)
 	{
-		File* f;
+		std.stdio.File* f;
 		try
 		{
 		    mkdirRecurse(filename);
-			f = new File(filename~mName~"_g"~to!string(iGeneration), "w");
+		        
+			f = new std.stdio.File(filename~mName~"_g"~to!string(iGeneration), "w");
 			
 			foreach(i,ind;inds)
 			{
@@ -216,10 +220,51 @@ public:
 		inds.clear();
 	}
 	
+	void saveBinary(OutputStream stream)
+	{
+	    stream.write(mName);
+	    stream.write(iGeneration);
+	    
+	    stream.write(cast(ulong)inds.length);
+	    foreach(ind; inds)
+	    {
+	        ind.saveBinary(stream);
+	    }
+	}
+	
+	static thistype loadBinary(InputStream stream)
+	{
+	    auto pop = new thistype();
+	    char[] popName;
+	    stream.read(popName); std.stdio.writeln(popName);
+	    pop.mName = popName.idup;
+	    
+	    stream.read(pop.iGeneration); std.stdio.writeln(pop.iGeneration);
+	    
+	    ulong indsLength;
+	    stream.read(indsLength); std.stdio.writeln(indsLength);
+	    auto builder = appender!(Individ[]);
+	    foreach(i; 0..cast(size_t)indsLength)
+	    {
+	        auto ind = IndType.loadBinary(stream);
+	        
+	        if(ind is null)
+	        {
+	            throw new Exception("Loaded ind is null!");
+	        }
+	        
+	        builder.put(new IndType(ind));
+	    }
+	    pop.inds = builder.data;
+	    
+	    std.stdio.writeln(pop.inds);
+	    return pop;
+	}
+	
     protected
     {
     	uint iGeneration;
-    	IndType[] inds;
+    	Individ[] inds;
     	string mName = "";
     }
 }

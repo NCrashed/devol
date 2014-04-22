@@ -22,7 +22,6 @@
             "sourcePaths": ["source/devol", "source/ant"],
             "mainSourceFile": "ant/main.d",
             "dependencies": {
-                "derelict-util": ">=1.0.0",
                 "derelict-sdl2": "~master"
             }
         }

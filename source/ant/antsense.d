@@ -12,7 +12,7 @@ import devol.operatormng;
 import devol.argument;
 
 import devol.individ;
-import devol.line;
+import devol.std.line;
 import devol.world;
 
 import devol.typemng;

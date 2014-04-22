@@ -10,6 +10,9 @@ module main;
 import std.stdio;
 import std.process;
 import std.conv;
+import std.getopt;
+import std.stream;
+
 import core.time, core.thread;
 
 import devol.compiler;
@@ -41,10 +44,10 @@ alias 	GameCompilation!(
 		auto aw = cast(AntWorld)(world);
 		auto app = App.getSingleton();
 		
-		version(linux)
-			system("clear");
-		version(Windows)
-			system("cls");
+//		version(linux)
+//			system("clear");
+//		version(Windows)
+//			system("cls");
 		
 		app.clear();	
 			
@@ -90,8 +93,13 @@ alias Compiler!(
 	AntWorld) 
 AntCompiler;
 
-void main(char[][] args)
+void main(string[] args)
 {
+    string savedPop;
+    getopt(args,
+        "saved", &savedPop
+    );
+    
 	auto app = new App;
 	scope(exit) destroy(app);
 	
@@ -99,8 +107,15 @@ void main(char[][] args)
     auto tmng = TypeMng.getSingleton();
     auto opmng = OperatorMng.getSingleton();
     
-    writeln("testing population");
-    auto pop = comp.addPop(30);
+    AntPopulation pop;
+    if(savedPop == "")
+    {
+        pop = comp.addPop(30);
+    } else
+    {
+        pop = comp.loadPopulation(new std.stream.File(savedPop, FileMode.In));
+        pop.saveAll("testLoadedPop/");
+    }
     
     while(!app.shouldExit) {comp.envolveGeneration(() => app.shouldExit);}
 }

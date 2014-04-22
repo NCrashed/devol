@@ -9,7 +9,9 @@ module devol.compiler;
 
 import std.stdio;
 import std.array;
-
+import std.stream;
+import std.conv;
+import std.file;
 import devol.singleton;
 import core.time;
 import core.thread;
@@ -36,15 +38,13 @@ struct SequentCompilation
 	
 	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType, bool delegate() whenExit )
 	{
-		writeln("Entered compile method");
 		foreach ( ind; pop )
 		{
 		    if(whenExit()) return;
-			writeln("Taking indivi");
+
 			foreach( line; ind.program )
 			{
 			    if(whenExit()) return;
-				writeln("Compiling line");
 				line.compile(ind, world);
 			}
 		}
@@ -79,8 +79,6 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 	
 	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType, bool delegate() whenExit )
 	{
-		writeln("Entered compile method");
-
 		foreach ( ind; pop )
 		{
 			auto fitts = new double[roundsPerInd];
@@ -96,7 +94,6 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 					foreach( line; ind.program )
 					{
 					    if(whenExit()) return;
-						writeln("Compiling line");
 						line.compile(ind, world);
 						drawStep(ind, world);
 					}
@@ -119,7 +116,7 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 		foreach( ind; pop )
 		{
 			writeln("Individ №",i++);
-			//ind.fitness = progType.getFitness(ind, world, 0);
+			ind.fitness = progType.getFitness(ind, world, 0);
 			summ += ind.fitness;
 			writeln("Fitness = ", ind.fitness ); 
 		}
@@ -189,9 +186,8 @@ public:
 		return pop;
 	}
 	
-	void envolveGeneration(bool delegate() whenExit)
+	void envolveGeneration(bool delegate() whenExit, string saveFolder = "saves")
 	{
-		writeln("Entering comp...");
 		foreach( ref pop; pops )
 		{
 			writeln("Pop init");
@@ -206,8 +202,15 @@ public:
 			CompStg.calcPopFitness( pop, world, progtype );
 			scope(exit)
 			{
-			    pop.saveBests("saves/AntsBests/");
-			    pop.saveAll("saves/AntsAll/");
+                if(!saveFolder.exists)
+                    mkdirRecurse(saveFolder);
+                    
+			    pop.saveBests(text(saveFolder, "/bests/"));
+			    pop.saveAll(text(saveFolder, "/all/"));
+			    
+			    auto binaryFile = new std.stream.File(text(saveFolder, "/population_", pop.generation, ".dpop"), FileMode.OutNew);
+			    scope(exit) binaryFile.close();
+			    pop.saveBinary(binaryFile);
 		    }
 			
 			if(whenExit()) return;
@@ -215,6 +218,14 @@ public:
 			pop.generation = pop.generation + 1;
 			if(whenExit()) return;
 		}
+	}
+	
+	PopType loadPopulation(InputStream stream)
+	{
+	    PopType pop = cast(PopType)PopType.loadBinary(stream);
+	    assert(pop !is null);
+	    pops ~= pop;
+	    return pop;
 	}
 	
 protected:

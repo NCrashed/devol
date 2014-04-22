@@ -56,7 +56,7 @@ class AntWorld: WorldAbstract
 	
 	void generateMap()
 	{
-		writeln("Generating map");
+//		writeln("Generating map");
 		Ant Grower = new Ant;
 		
 		Grower.x = size/2+uniform!"[]"(-1,1);
@@ -67,7 +67,7 @@ class AntWorld: WorldAbstract
 		int FC = 1;
 		int breakCount = 0;
 		
-		writeln("Adding delegate");
+		//writeln("Adding delegate");
 		Grower.addCheat(delegate bool ()
 		{
 			final switch(Grower.Direction)
@@ -99,29 +99,29 @@ class AntWorld: WorldAbstract
 			}
 			return false;
 		});
-		writeln("Placing food");
+		//writeln("Placing food");
 		auto flag = true;
 		while(FC!=Food && breakCount < 100)
 		{
-			writeln("FC = ", FC);
-			writeln("Food = ", Food);
+			//writeln("FC = ", FC);
+			//writeln("Food = ", Food);
 			int c = uniform!"[]"(0,1);
 			GoForward F = new GoForward;
 			TurnLeft L = new TurnLeft;
 			TurnRight R = new TurnRight;
-			writeln("Choosing direction");
+			//writeln("Choosing direction");
 			if(c&&!Grower.MyCheat())
 			{
-				writeln("Forward");
+				//writeln("Forward");
 				F.apply(Grower, null, this);
 				
 				int d = uniform!"[]"(0,1);
-				writeln("Chance to place food: ", d);
+				//writeln("Chance to place food: ", d);
 				if ( Grower.x >= 1 && Grower.y  >= 1 && Grower.x <= size-1 && Grower.y <= size - 1 )
 				{
     				if((d||flag)&&!map[Grower.x][Grower.y])
     				{
-    					writeln("Placing food");
+    					//writeln("Placing food");
     					map[Grower.x][Grower.y] = true;
     					FC++;
     					flag = false;
@@ -134,17 +134,17 @@ class AntWorld: WorldAbstract
 			}
 			else
 			{
-				writeln("Rotating");
+				//writeln("Rotating");
 				breakCount++;
 				int d = uniform!"[]"(0,1);
 				if(d)
 				{
-					writeln("Left");
+					//writeln("Left");
 					L.apply(Grower, null, this);
 				}
 				else
 				{
-					writeln("Right");
+					//writeln("Right");
 					R.apply(Grower,null,this);
 				}
 			}
@@ -153,7 +153,7 @@ class AntWorld: WorldAbstract
 			
 			void printGr()
 			{
-				writeln("Getting singleton");
+				//writeln("Getting singleton");
 				auto app = App.getSingleton();
 				assert(app !is null);
 				
@@ -179,21 +179,21 @@ class AntWorld: WorldAbstract
 	
 	void print()
 	{
-		version(linux)
-		{
-			system("clear");
-		}
-		foreach( l; map )
-		{
-			foreach( c; l)
-			{
-				if (c)
-					write("x");
-				else
-					write("-");
-			}
-			writeln();
-		}
+//		version(linux)
+//		{
+//			system("clear");
+//		}
+//		foreach( l; map )
+//		{
+//			foreach( c; l)
+//			{
+//				if (c)
+//					write("x");
+//				else
+//					write("-");
+//			}
+//			writeln();
+//		}
 	}
 	
 	void draw(App app, SDL_Texture* food, SDL_Texture* empty, SDL_Texture* wall)

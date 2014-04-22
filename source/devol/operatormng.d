@@ -10,6 +10,7 @@ module devol.operatormng;
 import std.stdio;
 import std.random;
 import std.array;
+import std.conv;
 
 import devol.singleton;
 
@@ -32,7 +33,7 @@ class OperatorMng : Singleton!OperatorMng
 		Operator t = new T();
 		
 		if ( t.name in operators )
-			throw new Exception("This operator already registered!");
+			throw new Exception(text("Operator ", t.name, " is already registered!"));
 		
 		operators[t.name] = t;		
 	}
@@ -40,7 +41,7 @@ class OperatorMng : Singleton!OperatorMng
 	Operator getOperator(string name)
 	{
 		if ( name !in operators )
-			throw new Exception("This operator isn't registered!");
+			throw new Exception(text("Operator ", name," isn't registered!"));
 			
 		return operators[name];
 	}

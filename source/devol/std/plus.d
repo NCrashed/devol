@@ -42,22 +42,22 @@ class Plus : Operator
 	
 	override Argument apply(IndAbstract ind, Line line, WorldAbstract world)
 	{
-		debug writeln("Plus: Getting return type");
+		//debug writeln("Plus: Getting return type");
 		auto ret = inttype.getNewArg();
 		
-		debug writeln("Plus: casting arugments");
+		//debug writeln("Plus: casting arugments");
 		auto a1 = cast(ArgPod!int)(line[0]);
 		auto a2 = cast(ArgPod!int)(line[1]);
 		
-		debug writeln( line[0].type.name );
-		debug writeln( line[0].type.name );
+		//debug writeln( line[0].type.name );
+		//debug writeln( line[0].type.name );
 		
 		assert( a1 !is null, "Critical error: Operator plus, argument 1 isn't a right value!");
 		assert( a2 !is null, "Critical error: Operator plus, argument 2 isn't a right value!");
 		
-		debug writeln("Plus: adding arguments");
+		//debug writeln("Plus: adding arguments");
 		ret = a1.val + a2.val;
-		debug writeln("Plus: succes");
+		//debug writeln("Plus: succes");
 		return ret;
 	}	
 }

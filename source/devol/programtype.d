@@ -11,7 +11,7 @@ public
 {
 	import devol.individ;
 	import devol.world;
-	import devol.line;
+	import devol.std.line;
 }
 private
 {

@@ -7,6 +7,9 @@
 */
 module devol.std.typescope;
 
+import std.stream;
+import devol.std.line;
+
 public
 {
 	import devol.type;
@@ -30,5 +33,9 @@ class TypeScope : Type
 	{
 		return new ArgScope(this);
 	}
-		
+	
+	override Argument loadArgument(InputStream stream)
+	{
+	    return ArgScope.loadBinary(stream);
+	}
 }

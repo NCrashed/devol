@@ -8,6 +8,9 @@
 module devol.std.typevoid;
 
 import devol.type;
+import devol.std.argscope;
+import devol.std.line;
+import std.stream;
 
 public
 {
@@ -30,5 +33,25 @@ class TypeVoid : Type
 	{
 		return new ArgVoid;
 	}
-		
+	
+	override Argument loadArgument(InputStream stream)
+	{
+	    char[] cont;
+	    stream.read(cont);
+	    
+	    if(cont == "line")
+	    {
+	        return Line.loadBinary(stream);
+	    } 
+	    else if(cont == "scope")
+	    {
+	        return ArgScope.loadBinary(stream);
+	    } 
+	    else if(cont == "void")
+	    {
+	        return new ArgVoid;
+	    }
+	    
+	    throw new Exception("Unknown void container!");
+	}	
 }

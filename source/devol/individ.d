@@ -8,10 +8,12 @@
 module devol.individ;
 
 import std.variant;
+import std.array;
+import devol.serializable;
 
 public
 {
-	import devol.line;	
+	import devol.std.line;	
 }
 
 interface IndAbstract
@@ -33,7 +35,7 @@ interface IndAbstract
 	@property IndAbstract dup();
 }
 
-class Individ : IndAbstract
+class Individ : IndAbstract, ISerializable
 {
 	this()
 	{
@@ -41,6 +43,21 @@ class Individ : IndAbstract
 		mMemory = new Line[0];
 	}
 	
+    this(Individ ind)
+    {
+        this();
+        loadFrom(ind);
+    }
+    
+    void loadFrom(Individ ind)
+    {
+        this.program = ind.program;
+        this.memory = ind.memory;
+        this.invals = ind.invals;
+        this.outvals = ind.outvals;
+        this.fitness = ind.fitness;
+    }
+    
 	@property Line[] program()
 	{
 		return mProgram;
@@ -51,6 +68,11 @@ class Individ : IndAbstract
 		return mMemory;
 	}
 	
+    @property void memory(Line[] val)
+    {
+        mMemory = val;
+    }
+    
 	@property void program(Line[] val)
 	{
 		mProgram = val;
@@ -122,6 +144,73 @@ class Individ : IndAbstract
 	} 
 	
 	void initialize() {}
+	
+	void saveBinary(OutputStream stream)
+	{
+	    stream.write(cast(ulong)mProgram.length);
+	    foreach(line; mProgram)
+	    {
+	        line.saveBinary(stream);
+	    }
+	    
+	    stream.write(cast(ulong)mMemory.length);
+	    foreach(line; mMemory)
+	    {
+	        line.saveBinary(stream);
+	    }
+	    
+	    stream.write(cast(ulong)inVals.length);
+	    foreach(line; inVals)
+	    {
+	        line.saveBinary(stream);
+	    }
+	    
+	    stream.write(cast(ulong)outVals.length);
+	    foreach(line; outVals)
+	    {
+	        line.saveBinary(stream);
+	    }
+	    
+	    stream.write(mFitness);
+	}
+	
+	static Individ loadBinary(InputStream stream)
+	{
+	    Line[] loadLineArray(size_t length)
+	    {
+            auto builder = appender!(Line[]);
+            foreach(i; 0..length)
+            {
+                char[] mark;
+                stream.read(mark);
+                assert(mark.idup == "line");
+                builder.put(Line.loadBinary(stream));
+            }
+            return builder.data;
+	    }
+	    
+	    auto ind = new Individ; std.stdio.writeln("loading individ");
+	    
+	    ulong programLength;
+	    stream.read(programLength); std.stdio.writeln("program length", programLength);
+	    ind.mProgram = loadLineArray(cast(size_t)programLength);
+	    
+	    ulong memoryLength;
+        stream.read(memoryLength); std.stdio.writeln("memory length", memoryLength);
+        ind.mMemory = loadLineArray(cast(size_t)memoryLength);
+        
+        ulong inValsLength;
+        stream.read(inValsLength); std.stdio.writeln("inVals length", inValsLength);
+        ind.inVals = loadLineArray(cast(size_t)inValsLength);
+        
+        ulong outValsLength;
+        stream.read(outValsLength); std.stdio.writeln("outVals length", outValsLength);
+        ind.outVals = loadLineArray(cast(size_t)outValsLength);
+        
+        stream.read(ind.mFitness);
+        
+        return ind;
+	}
 	
     protected
     {

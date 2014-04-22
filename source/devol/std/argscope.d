@@ -10,12 +10,13 @@ module devol.std.argscope;
 import std.conv;
 import std.random;
 import std.algorithm;
+import std.stream;
 
 import devol.std.container;
 import devol.std.random;
 import devol.std.typescope;
-
-import devol.line;
+import devol.typemng;
+import devol.std.line;
 
 class ArgScope : Container
 {
@@ -123,7 +124,7 @@ class ArgScope : Container
 		lines ~= l;
 	}
 	
-	override void removeElement(int i)
+	override void removeElement(size_t i)
 	{
 		if (i>0 && i<lines.length) return;
 		lines.remove(i);
@@ -135,7 +136,7 @@ class ArgScope : Container
 	}
 
 
-	override Line opIndex( uint i )
+	override Line opIndex( size_t i )
 	{
 		return lines[i];
 	}
@@ -190,25 +191,54 @@ class ArgScope : Container
 		return dscope;
 	}
 	
-	override void opIndexAssign( Argument val, uint i )
+	override void opIndexAssign( Argument val, size_t i )
 	{
 		auto l = cast(Line)(val);
 		if (l !is null)
 			lines[i] = l;
 	}
 	
-	override Argument[] opSlice( uint a, uint b )
+	override Argument[] opSlice( size_t a, size_t b )
 	{
 		return cast(Argument[])lines[a .. b];
 	}
 	
-	override uint opDollar()
+	override size_t opDollar()
 	{
-		return cast(uint)lines.length;
+		return lines.length;
 	}
 	
-	override @property uint length()
+	override @property size_t length()
 	{
-		return cast(uint)lines.length;
+		return lines.length;
+	}
+	
+	static ArgScope loadBinary(InputStream stream)
+	{
+	    ulong length;
+	    stream.read(length);
+	    
+	    auto ascope = new ArgScope(TypeMng.getSingleton().getType("TypeVoid"));
+	    
+	    foreach(i; 0..cast(size_t)length)
+	    {
+	        char[] mark;
+	        stream.read(mark);
+	        assert(mark.idup == "line");
+	        
+	        ascope.addElement(Line.loadBinary(stream));
+	    }
+	    return ascope;
+	}
+	
+	void saveBinary(OutputStream stream)
+	{
+	    stream.write("scope");
+	    
+	    stream.write(cast(ulong)lines.length);
+	    foreach(line; lines)
+	    {
+	        line.saveBinary(stream);
+	    }
 	}
 }

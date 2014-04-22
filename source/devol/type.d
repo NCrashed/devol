@@ -8,6 +8,8 @@
 module devol.type;
 
 import std.array;
+import devol.serializable;
+import devol.typemng;
 
 public
 {
@@ -42,7 +44,7 @@ class ConvException : Exception
 	Type eTo;
 }
 
-class Type
+abstract class Type : ISerializable
 {
 	this(string name)
 	{
@@ -177,6 +179,25 @@ class Type
 			node = node.parent;
 		}
 		return chain;
+	}
+	
+	static Type loadBinary(InputStream stream)
+	{
+	    char[] typename;
+	    stream.read(typename);
+	    
+	    return TypeMng.getSingleton().getType(typename.idup);
+	}
+	
+	/// Loading argument from input stream
+	/**
+	*  Should be defined by all childs.
+	*/
+	Argument loadArgument(InputStream stream);
+	
+	void saveBinary(OutputStream stream)
+	{
+        stream.write(sName);
 	}
 	
 	private ConvertorFunc[Type] convs;

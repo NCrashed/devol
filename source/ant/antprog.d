@@ -12,7 +12,7 @@ import std.stdio;
 import devol.programtype;
 import devol.world;
 import devol.individ;
-import devol.line;
+import devol.std.line;
 
 import devol.typemng;
 import devol.std.typepod;
@@ -143,6 +143,13 @@ class Ant : Individ
 		Direction = Faces.EAST;
 		FoodCount = 0;
 	}
+	
+	this(Individ ind)
+	{
+	    this();
+	    loadFrom(ind);
+	}
+	
 	int x,y; 			//Ant's position;
 	enum Faces			//What direction is it looking
 	{
