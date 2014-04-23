@@ -169,6 +169,20 @@ interface ProgTypeAbstract
 		assert( 0 <= result && result <= 1, "Return value must be in range [0,1]!");
 	}
 	
+	/// Размер генома, при котором начинает повышаться шанс мутации удаления
+	@property size_t deleteMutationRiseGenomeSize();
+//	out(result)
+//	{
+//	    assert(result <= maxGenomeSize(), "Return value must be less or equal maxGenomeSize");
+//	}
+	
+	/// Максимальный размер генома индивида в количестве листов
+	@property size_t maxGenomeSize();
+//    out(result)
+//    {
+//	    assert(result >= deleteMutationRiseGenomeSize(), "Return value must be greater or equal deleteMutationRiseGenomeSize");
+//	}
+	
 	/// Оценка результата работы индивида
 	double getFitness(IndAbstract pInd, WorldAbstract pWorld, double time);
 	

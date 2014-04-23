@@ -21,6 +21,7 @@ interface IndAbstract
 	void initialize();
 	@property Line[] program();
 	@property void program(Line[] val);
+	@property size_t getGenomeSize();
 	
 	@property Line[] memory();
 	
@@ -61,6 +62,16 @@ class Individ : IndAbstract, ISerializable
 	@property Line[] program()
 	{
 		return mProgram;
+	}
+	
+	size_t getGenomeSize()
+	{
+	    size_t genome;
+	    foreach(line; mProgram)
+	    {
+	        genome += line.leafs;
+	    }
+	    return genome;
 	}
 	
 	@property Line[] memory()
@@ -183,8 +194,11 @@ class Individ : IndAbstract, ISerializable
             {
                 char[] mark;
                 stream.read(mark);
-                assert(mark.idup == "line");
-                builder.put(Line.loadBinary(stream));
+                assert(mark.idup == "line", "Mark is "~mark.idup);
+                
+                auto line = Line.loadBinary(stream);
+                std.stdio.writeln(line.tostring(0));
+                builder.put(line);
             }
             return builder.data;
 	    }

@@ -429,7 +429,7 @@ class Line : Container, ISerializable
 	    auto builder = appender!(Argument[]);
 	    
 	    foreach(i; 0..cast(size_t)argsLength)
-	    {
+	    {std.stdio.writeln(line.pOp[i].type.name);
 	        char[] mark;
 	        stream.read(mark);
 	        
@@ -440,9 +440,12 @@ class Line : Container, ISerializable
 	        {
 	            builder.put(ArgScope.loadBinary(stream));
 	        } else if(mark == "plain")
-	        {
+	        {std.stdio.writeln("!!!!!!!!!!!!!");
 	            auto type = line.pOp[i].type; 
 	            builder.put(type.loadArgument(stream));
+	        } else
+	        {
+	            std.stdio.writeln("Bad!");
 	        }
 	    }
 	    line.args = builder.data;

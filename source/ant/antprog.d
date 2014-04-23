@@ -122,6 +122,16 @@ class AntProgType : ProgTypeAbstract
 		return 0.1;
 	}
 	
+	size_t deleteMutationRiseGenomeSize()
+	{
+	    return 5;
+	}
+	
+	size_t maxGenomeSize()
+	{
+	    return 10;
+	}
+	
 	Line[] initValues(WorldAbstract pWorld)
 	{
 		return new Line[0];

@@ -83,7 +83,7 @@ alias 	GameCompilation!(
 //		auto ap = cast(AntPopulation)(pop);
 //		auto aw = cast(AntWorld)(world);			
 	},
-	3
+	1
 )MyCompilaton;
 
 alias Compiler!(
@@ -111,7 +111,7 @@ void main(string[] args)
     AntPopulation pop;
     if(savedPop == "")
     {
-        pop = comp.addPop(30);
+        pop = comp.addPop(5);
     } else
     {
         pop = comp.loadPopulation(new std.stream.File(savedPop, FileMode.In));

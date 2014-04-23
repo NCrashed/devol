@@ -14,6 +14,7 @@ import std.math;
 import std.conv;
 import std.array;
 import std.algorithm;
+import std.range;
 import devol.typemng;
 import devol.operatormng;
 import devol.std.random;
@@ -111,7 +112,8 @@ class Evolutor
 					}
 				}
 			} else if (getChance(ptype.newOpGenChance) 
-					|| (op.style == ArgsStyle.CONTROL_STYLE && i != 0) )
+					|| (op.style == ArgsStyle.CONTROL_STYLE && i != 0) 
+					|| arg.type.name == voidtype.name)
 			{
 				auto aline = new Line;
 				scope(success) line[j] = aline;
@@ -124,7 +126,7 @@ class Evolutor
 						debug writeln("Note: cannot find operator for type ", e.t.name);
 					
 				}		
-			} 
+			}
 			
 			i++;
 		}
@@ -186,7 +188,8 @@ class Evolutor
 				}	
 				line[i] = ascope;		
 			} else if (getChance(ptype.newOpGenChance)
-					|| (op.style == ArgsStyle.CONTROL_STYLE && i != 0) ) 
+					|| (op.style == ArgsStyle.CONTROL_STYLE && i != 0) 
+					|| arg.type.name == voidtype.name) 
 			{
 				auto aline = new Line;
 				aline = generateLine( pInd, ptype, arg.type,
@@ -499,6 +502,8 @@ class Evolutor
 	{
 		if (pInd.program.length == 0) return;
 		
+		auto voidtype = cast(TypeVoid)(TypeMng.getSingleton.getType("TypeVoid"));
+		
 		size_t k = uniform(0, pInd.program.length);
 		Line line = pInd.program[k];
 		auto chances = new double[3];
@@ -571,9 +576,16 @@ class Evolutor
 						replaceRandomElementStd(line, 
 							(Type t)
 							{
-								Argument arg = t.getNewArg();
-								arg.randomChange(ptype.maxMutationChange);
-								return arg;
+                                if(t.name == voidtype.name)
+                                {
+                                    return generateLine(pInd, ptype);
+                                } 
+                                else
+                                {   
+                                    Argument arg = t.getNewArg();
+                                    arg.randomChange(ptype.maxMutationChange);
+                                    return arg;
+                                }
 							});
 						break;
 					}
@@ -657,11 +669,14 @@ class Evolutor
 			newPop.addIndivid(cast(newPop.IndividType)(sortedInds[i].dup));
 		}
 				
-		 version(Verbose) write("Отсортированные индивиды по фитнес: [");
-		 foreach(ind; sortedInds)
-			write(ind.fitness,",");
-		 writeln("]");
-		 version(Verbose) writeln("Размер новой популяции ", newPop.length);
+		 version(Verbose)
+		 {
+		     write("Отсортированные индивиды по фитнес: [");
+    		 foreach(ind; sortedInds)
+    			write(ind.fitness,",");
+    		 writeln("]");
+    		 writeln("Размер новой популяции ", newPop.length);
+		 }
 
 		// Формируем шансы для операций
 		auto opChances = new double[2];
@@ -671,9 +686,17 @@ class Evolutor
 		
 		// Формируем шансы индивидов
 		auto indChances = new double[0];
-		foreach( ind; pop )
+		if(averFitness == 0)
 		{
-			indChances ~= cast(double)(ind.fitness)/cast(double)(averFitness);
+		    indChances = (1.0/cast(double)pop.length).repeat.take(pop.length).array;
+		    assert(indChances.length == pop.length);
+		}
+		else
+		{
+    		foreach( ind; pop )
+    		{
+    			indChances ~= cast(double)(ind.fitness)/cast(double)(averFitness);
+    		}
 		}
 		version(Verbose) writeln("Шансы индивидов: ", indChances);
 		
@@ -720,7 +743,87 @@ class Evolutor
 					newPop.addIndivid( pIndB );				
 			}
 		}
+		
+		performGenomeTruncation(newPop, ptype);
+		
 		return newPop;
+	}
+	
+	void performGenomeTruncation(IndAbstract pInd, ProgTypeAbstract ptype)
+	{
+	    auto voidtype = cast(TypeVoid)(TypeMng.getSingleton.getType("TypeVoid"));
+	    
+	    void destructiveMutation()
+	    {
+            size_t k = uniform(0, pInd.program.length);
+            Line line = pInd.program[k];
+            
+            if(getChance(ptype.mutationRemoveLineChance))
+            {
+                version(Verbose) writeln("Removing global line");
+                
+                if( k != pInd.program.length -1)
+                {
+                    pInd.program = pInd.program[0..k] ~ pInd.program[k+1..$];
+                }
+                else
+                {
+                    pInd.program = pInd.program[0..k];
+                }
+                
+                return;
+            }
+            
+            version(Verbose) writeln("Replacing local argument");
+            replaceRandomElementStd(line, 
+            (Type t)
+            {
+                if(t.name == voidtype.name)
+                {
+                    return generateLine(pInd, ptype);
+                } 
+                else
+                {   
+                    Argument arg = t.getNewArg();
+                    arg.randomChange(ptype.maxMutationChange);
+                    return arg;
+                }
+            });
+	    }
+	    
+	    auto gensize = pInd.getGenomeSize;
+	    if(gensize >= ptype.maxGenomeSize)
+	    {
+	        do 
+	        {
+	            version(Verbose) writeln("Individ genome size is: ", gensize, ". Performing truncation.");
+	            
+	            destructiveMutation();
+	            gensize = pInd.getGenomeSize;
+	        } 
+	        while(gensize >= ptype.maxGenomeSize);
+	    } 
+	    else if(gensize >= ptype.deleteMutationRiseGenomeSize)
+	    {
+	        version(Verbose) writeln("Individ genome size is: ", gensize, ". Performing soft truncation.");
+	        
+	        // linear interpolation
+	        double chance = (gensize - ptype.deleteMutationRiseGenomeSize) / ptype.maxGenomeSize;
+	        if(chance.isNaN) return;
+	        
+	        if(getChance(chance))
+	        {
+	            destructiveMutation();
+	        }
+	    }
+	}
+	
+	void performGenomeTruncation(PopType)(PopType pop, ProgTypeAbstract ptype)
+	{
+	    foreach(ind; pop)
+	    {
+	        performGenomeTruncation(ind, ptype);
+	    }
 	}
 } 
 

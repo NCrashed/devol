@@ -47,7 +47,7 @@ class TypeVoid : Type
 	    {
 	        return ArgScope.loadBinary(stream);
 	    } 
-	    else if(cont == "void")
+	    else if(cont == "plain")
 	    {
 	        return new ArgVoid;
 	    }
