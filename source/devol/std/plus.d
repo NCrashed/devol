@@ -23,6 +23,8 @@ class Plus : Operator
 {
 	TypePod!int inttype;
 	
+	enum description = "Arithmetic operator that adds two arguments and returns the result.";
+	
 	this()
 	{
 		inttype = cast(TypePod!int)(TypeMng.getSingleton().getType("Typeint"));
@@ -40,6 +42,7 @@ class Plus : Operator
 		args ~= a1;
 	}
 	
+	/// TODO: enable adding not only ints
 	override Argument apply(IndAbstract ind, Line line, WorldAbstract world)
 	{
 		//debug writeln("Plus: Getting return type");

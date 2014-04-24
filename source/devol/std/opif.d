@@ -24,6 +24,11 @@ class If : Operator
 	TypePod!bool booltype;
 	TypeVoid voidtype;
 	
+	enum description = "Conditional operator that takes three arguments. "
+	"First one is boolean type that refers to condition. If the argument "
+	"evaluates to true, second argument is returned, else third one is returned."
+	"Second and third arguments refer to actions of void type.";
+	
 	this()
 	{
 		booltype = cast(TypePod!bool)(TypeMng.getSingleton().getType("Typebool"));
@@ -32,7 +37,7 @@ class If : Operator
 		voidtype = cast(TypeVoid)(TypeMng.getSingleton().getType("TypeVoid"));
 		
 		mRetType = voidtype;
-		super("if","bla bla bla",ArgsStyle.CONTROL_STYLE);
+		super("if", description, ArgsStyle.CONTROL_STYLE);
 		
 		ArgInfo a1;
 		a1.type = booltype;
