@@ -79,5 +79,17 @@ class OperatorMng : Singleton!OperatorMng
 		return ret;
 	}
 	
+    int opApply(int delegate(ref Operator) dg)
+    {
+        int result = 0;
+    
+        foreach(operator; operators)
+        {
+            result = dg(operator);
+            if (result) break;
+        }
+        return result;
+    }
+
 	protected Operator[string] operators;
 }

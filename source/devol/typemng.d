@@ -63,5 +63,17 @@ class TypeMng : Singleton!TypeMng
 		return mTypes.keys;
 	}
 	
+    int opApply(int delegate(ref Type) dg)
+    {
+        int result = 0;
+    
+        foreach(type; mTypes)
+        {
+            result = dg(type);
+            if (result) break;
+        }
+        return result;
+    }
+    
 	protected Type[string] mTypes;
 }
