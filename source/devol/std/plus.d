@@ -31,7 +31,7 @@ class Plus : Operator
 		assert(inttype, "We need int type!");
 		
 		mRetType = inttype;
-		super("+","Summ of two args",ArgsStyle.BINAR_STYLE);
+		super("+", description, ArgsStyle.BINAR_STYLE);
 		
 		ArgInfo a1;
 		a1.type = inttype;
