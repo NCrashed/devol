@@ -25,15 +25,15 @@ public
 
 interface PopAbstract : ISerializable
 {
-	void genName(int size);
+	void genName(size_t size);
 	@property string name();
 	@property void name(string val);
 	@property uint generation();
 	@property void generation(uint val);
-	@property ulong length();
-	IndAbstract opIndex( uint i );
-	IndAbstract[] opSlice( uint a, uint b );
-	uint opDollar();
+	@property size_t length();
+	IndAbstract opIndex( size_t i );
+	IndAbstract[] opSlice( size_t a, size_t b );
+	size_t opDollar();
 	int opApply(int delegate(ref IndAbstract) dg);
 }
 
@@ -71,7 +71,7 @@ class Population(alias nameChecker, IndType)
 		inds = new Individ[0];
 	}
 	
-	this(uint size)
+	this(size_t size)
 	{
 		inds = new Individ[size];
 		foreach( ref ind; inds)
@@ -80,7 +80,7 @@ class Population(alias nameChecker, IndType)
 		}
 	}
 	
-	void genName(int size = DefNameLength)
+	void genName(size_t size = DefNameLength)
 	{
 		auto buff = new char[size];
 		string chars = nameChecker();
@@ -109,24 +109,24 @@ class Population(alias nameChecker, IndType)
 		mName = val;
 	}
 	
-	@property ulong length()
+	@property size_t length()
 	{
 		return inds.length;
 	}
 	
-	IndType opIndex( uint i )
+	IndType opIndex( size_t i )
 	{
 		return cast(IndType)inds[i];
 	}
 	
-	IndAbstract[] opSlice( uint a, uint b )
+	IndAbstract[] opSlice( size_t a, size_t b )
 	{
 		return cast(IndAbstract[])(inds[a..b]);
 	}
 	
-	uint opDollar()
+	size_t opDollar()
 	{
-		return cast(uint)(inds.length);
+		return inds.length;
 	}
 	
 	int opApply(int delegate(ref IndAbstract) dg)

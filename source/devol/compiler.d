@@ -141,7 +141,7 @@ public:
 	this()
 	{
 		evolutor = new EvolutorStg();
-		pops = new PopType[0];
+		pops = [];
 		world = new WorldType();
 		progtype = new ProgType();
 	}
@@ -149,7 +149,7 @@ public:
 	this(ProgType progtype)
 	{
         evolutor = new EvolutorStg();
-        pops = new PopType[0];
+        pops = [];
         world = new WorldType();
         this.progtype = progtype;
 	}
@@ -161,12 +161,17 @@ public:
 		pops ~= pop;
 	}
 	
-	PopType getPop(uint i)
+	void clean()
+	{
+	    pops = [];
+	}
+	
+	PopType getPop(size_t i)
 	{
 		return pops[i];
 	}
 	
-	PopType addPop(int size, string name="")
+	PopType addPop(size_t size, string name="")
 	{
 		auto pop = new PopType(size);
 		
