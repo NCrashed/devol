@@ -140,17 +140,18 @@ public:
 
 	this()
 	{
-		//super(this);
-		//if ( OperatorMng.getSingleton() is null )
-		//	new OperatorMng();
-			
-		//if ( TypeMng.getSingleton() is null )
-		//	new TypeMng();
-			
 		evolutor = new EvolutorStg();
 		pops = new PopType[0];
 		world = new WorldType();
 		progtype = new ProgType();
+	}
+	
+	this(ProgType progtype)
+	{
+        evolutor = new EvolutorStg();
+        pops = new PopType[0];
+        world = new WorldType();
+        this.progtype = progtype;
 	}
 	
 	void addPop(PopType pop)
