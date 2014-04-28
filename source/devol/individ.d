@@ -34,6 +34,8 @@ interface IndAbstract
 	@property void outvals(Line[] val);
 	
 	@property IndAbstract dup();
+	
+	@property string programString();
 }
 
 class Individ : IndAbstract, ISerializable

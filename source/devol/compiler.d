@@ -25,9 +25,9 @@ public
 	import devol.programtype;
 }
 
-struct SequentCompilation
+interface SequentCompilation
 {
-	static void initPop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
+	final void initPop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
 	{
 		foreach( ind; pop )
 		{
@@ -36,7 +36,7 @@ struct SequentCompilation
 		}		
 	}
 	
-	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType, bool delegate() whenExit )
+	final void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType, bool delegate() whenExit )
 	{
 		foreach ( ind; pop )
 		{
@@ -50,25 +50,31 @@ struct SequentCompilation
 		}
 	}
 	
-	static void calcPopFitness( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
+	final void calcPopFitness( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
 	{
-		uint i =0;
-		ulong summ = 0;
-		foreach( ind; pop )
-		{
-			writeln("Individ №",i++);
-			ind.fitness = progType.getFitness(ind, world, 0);
-			summ += ind.fitness;
-			writeln("Fitness = ", ind.fitness ); 
-		}
-		auto asumm = cast(double)summ/pop.length;
-		writeln("Average fitness = ", asumm);
+        uint i =0;
+        ulong summ = 0;
+        foreach( ind; pop )
+        {
+            writeln("Individ №",i++);
+            ind.fitness = progType.getFitness(ind, world, 0);
+            summ += ind.fitness;
+            writeln("Fitness = ", ind.fitness ); 
+        }
+        
+        auto asumm = cast(double)summ/pop.length;
+        writeln("Average fitness = ", asumm);
 	}
 }
 
-struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roundsPerInd) 
+interface GameCompilation
 {
-	static void initPop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
+    bool stopCond(ref int step, IndAbstract ind, WorldAbstract world);
+    void drawStep(IndAbstract ind, WorldAbstract world);
+    void drawFinal(PopAbstract pop, WorldAbstract world);
+    int roundsPerInd();
+    
+	final void initPop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
 	{
 		foreach( ind; pop )
 		{
@@ -77,22 +83,46 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 		}		
 	}
 	
-	static void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType, bool delegate() whenExit )
+	final void compilePop( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType
+	    , bool delegate() whenExit, void delegate(double) updater , bool delegate() pauser)
 	{
-		foreach ( ind; pop )
+        bool continuation(double progress)
+        {
+            updater(progress);
+            if(whenExit()) return false; 
+            while(pauser()) updater(progress);
+            return true;
+        }
+        
+		foreach (i, ind; pop )
 		{
+		    if(!continuation(0.0)) return;
+		    double popProgress = (i+1) / cast(double)pop.length;
+		    
+		    version(Verbose) std.stdio.writeln(ind.programString);
+		    
 			auto fitts = new double[roundsPerInd];
 			foreach(j; 0..roundsPerInd)
 			{
-			    if(whenExit()) return;
+			    version(Verbose)std.stdio.writeln("Round: ", j);
+			    
+			    double prevIndProgress = j / cast(double)roundsPerInd;
+			    double indProgress = (j+1) / cast(double)roundsPerInd;
+			    
+			    if(!continuation(prevIndProgress * popProgress)) return;
+			    
+			    version(Verbose)std.stdio.writeln("World initialization: ");
 				world.initialize();
 				int step = 0;
+				
+				version(Verbose) std.stdio.writeln("Individ initialization: ");
 				ind.initialize();
 				while( !stopCond( step, ind, world ) )
 				{
-					
+				    version(Verbose) std.stdio.writeln("Step ", step);
 					foreach( line; ind.program )
 					{
+					    version(Verbose) std.stdio.writeln("line : ", line.tostring);
 					    if(whenExit()) return;
 						line.compile(ind, world);
 						drawStep(ind, world);
@@ -100,16 +130,21 @@ struct GameCompilation(alias stopCond, alias drawStep, alias drawFinal, int roun
 					
 					step++;
 				}
+				version(Verbose) std.stdio.writeln("Saving fitness ");
 				fitts[j] = progType.getFitness(ind, world, 0);
+				
+				if(!continuation(indProgress * popProgress)) return;
 			}
 			double summ = 0;
 			foreach(val; fitts)
 				summ+=val;
 			ind.fitness = summ/fitts.length;
+			
+			if(!continuation(popProgress)) return;
 		}			
 	}
 	
-	static void calcPopFitness( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
+	final void calcPopFitness( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
 	{
 		uint i =0;
 		ulong summ = 0;
@@ -138,16 +173,18 @@ class Compiler(
 {
 public: 
 
-	this()
+	this(CompStg compStrategy)
 	{
+	    compStg = compStrategy;
 		evolutor = new EvolutorStg();
 		pops = [];
 		world = new WorldType();
 		progtype = new ProgType();
 	}
 	
-	this(ProgType progtype)
+	this(CompStg compStrategy, ProgType progtype)
 	{
+	    compStg = compStrategy;
         evolutor = new EvolutorStg();
         pops = [];
         world = new WorldType();
@@ -181,7 +218,7 @@ public:
 			pop.name = name;
 		
 	
-		foreach(ref ind; pop)
+		foreach(ind; pop)
 		{
 			evolutor.generateInitProgram(ind, progtype);
 		}
@@ -192,20 +229,38 @@ public:
 		return pop;
 	}
 	
-	void envolveGeneration(bool delegate() whenExit, string saveFolder = "saves")
+	void envolveGeneration(bool delegate() whenExit, string saveFolder,
+	    void delegate(double) updater , bool delegate() pauser)
 	{
-		foreach( ref pop; pops )
+	    bool continuation(double progress)
+	    {
+	        updater(progress);
+            if(whenExit()) return false; 
+            while(pauser()) updater(progress);
+            return true;
+	    }
+	    
+		foreach(i, ref pop; pops )
 		{
+		    double progressPart = (i+1) / cast(double) pops.length;
+		    
 			writeln("Pop init");
-			CompStg.initPop( pop, world, progtype );
-			if(whenExit()) return;
+			compStg.initPop( pop, world, progtype );
+			if(!continuation(1.0 / 4.0 * progressPart)) return;
 			
 			writeln("Pop compile");
-			CompStg.compilePop( pop, world, progtype, whenExit);
-			if(whenExit()) return;
+			compStg.compilePop( pop, world, progtype, whenExit
+			    , (val)
+			    {
+			        updater(1.0 / 4.0 * progressPart + val / 4.0 * progressPart );
+			    }
+			    , pauser);
+			if(!continuation(2.0 / 4.0 * progressPart)) return;
 			
 			writeln("GENERATION №", pop.generation, " results:");
-			CompStg.calcPopFitness( pop, world, progtype );
+			compStg.calcPopFitness( pop, world, progtype );
+			if(!continuation(3.0 / 4.0 * progressPart)) return;
+			
 			scope(exit)
 			{
                 if(!saveFolder.exists)
@@ -219,10 +274,9 @@ public:
 			    pop.saveBinary(binaryFile);
 		    }
 			
-			if(whenExit()) return;
 			pop = evolutor.formNextPopulation( pop, progtype );
 			pop.generation = pop.generation + 1;
-			if(whenExit()) return;
+			if(!continuation(progressPart)) return;
 		}
 	}
 	
@@ -234,8 +288,10 @@ public:
 	    return pop;
 	}
 	
+	
 protected:
 	
+	CompStg compStg;
 	PopType[] pops;
 	WorldAbstract world;
 	ProgTypeAbstract progtype;

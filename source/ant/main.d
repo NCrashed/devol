@@ -25,9 +25,9 @@ import derelict.sdl2.sdl;
 
 alias Population!( getDefChars, Ant ) AntPopulation;
 
-alias 	GameCompilation!(
-    
-	function bool(ref int x, ind, world) // stopCond
+class MyCompilaton : GameCompilation
+{
+	bool stopCond(ref int x, IndAbstract ind, WorldAbstract world) // stopCond
 	{
 		auto ai = cast(Ant)(ind);
 		auto aw = cast(AntWorld)(world);
@@ -36,9 +36,9 @@ alias 	GameCompilation!(
 			x = 0;
 		ai.prevFoodCount = ai.FoodCount;
 		return x > 5 || aw.Food <= ai.FoodCount;
-	},
+	}
 	
-	function void(ind, world) // draw step
+	void drawStep(IndAbstract ind, WorldAbstract world) // draw step
 	{
 	    version(NoGraphicsOutput)
 	    {
@@ -77,14 +77,19 @@ alias 	GameCompilation!(
     		
     		app.present();	
 		}								
-	},
-	function void(pop, world) // draw final
+	}
+	
+	void drawFinal(PopAbstract pop, WorldAbstract world)
 	{
 //		auto ap = cast(AntPopulation)(pop);
 //		auto aw = cast(AntWorld)(world);			
-	},
-	1
-)MyCompilaton;
+	}
+	
+	int roundsPerInd()
+	{
+	    return 1;
+    }
+}
 
 alias Compiler!(
 	MyCompilaton,
@@ -104,7 +109,7 @@ void main(string[] args)
 	auto app = new App;
 	scope(exit) destroy(app);
 	
-    auto comp = new AntCompiler;
+    auto comp = new AntCompiler(new MyCompilaton, new AntProgType);
     auto tmng = TypeMng.getSingleton();
     auto opmng = OperatorMng.getSingleton();
     
@@ -117,5 +122,5 @@ void main(string[] args)
         pop = comp.loadPopulation(new std.stream.File(savedPop, FileMode.In));
     }
     
-    while(!app.shouldExit) {comp.envolveGeneration(() => app.shouldExit);}
+    while(!app.shouldExit) {comp.envolveGeneration(() => app.shouldExit, "saves", (d){}, () => false);}
 }

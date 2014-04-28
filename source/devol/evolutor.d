@@ -71,6 +71,7 @@ class Evolutor
 		Line[] buff = new Line[0];
 		foreach(i; 0..uniform!("[]")(ptype.progMinSize,ptype.progMaxSize))
 		{
+		    version(Verbose) writeln("Generating line ", i);
 			buff ~= generateLine( pInd, ptype );
 		}
 		pInd.program = buff;
@@ -99,7 +100,7 @@ class Evolutor
 				uint s = uniform!"[]"(ptype.scopeMinSize, ptype.scopeMaxSize);
 				scope(success) line[j] = ascope;
 				
-				//writeln("Generating scope");
+				version(Verbose) writeln("Generating scope");
 				foreach(i; 0..s)
 				{
 					try
@@ -115,6 +116,7 @@ class Evolutor
 					|| (op.style == ArgsStyle.CONTROL_STYLE && i != 0) 
 					|| arg.type.name == voidtype.name)
 			{
+			    version(Verbose) writeln("Generating line");
 				auto aline = new Line;
 				scope(success) line[j] = aline;
 				try
@@ -145,7 +147,7 @@ class Evolutor
 		auto voidtype = cast(TypeVoid)(tmng.getType("TypeVoid"));		
 		
 		Operator op;
-		if ( cast(TypeLine)rtype is null && cast(TypeScope)rtype is null )
+		if ( cast(TypeVoid)rtype is null && cast(TypeLine)rtype is null && cast(TypeScope)rtype is null )
 		{
 			op = opmng.getRndOperator(rtype);
 			if (op is null) 
@@ -713,7 +715,7 @@ class Evolutor
 					(int s)
 					{
 						version(Verbose) writeln("Выбран индивид №", s);
-						auto ind = cast(pop.IndividType)pop[s].dup;
+						auto ind = cast(pop.IndividType)(pop[s].dup);
 						version(Verbose) writeln("Был: ", ind.programString());
 						mutationStd( ind, ptype);
 						version(Verbose) writeln("Стал: ", ind.programString());
@@ -728,8 +730,8 @@ class Evolutor
 				int iInd2;
 				randomRange!((int s1){iInd1 = s1;})(indChances);
 				randomRange!((int s2){iInd2 = s2;})(indChances);
-				auto pIndA = cast(pop.IndividType)pop[iInd1].dup;
-				auto pIndB = cast(pop.IndividType)pop[iInd2].dup;
+				auto pIndA = cast(pop.IndividType)(pop[iInd1].dup);
+				auto pIndB = cast(pop.IndividType)(pop[iInd2].dup);
 				
 				version(Verbose) writeln("Выбраны индивиды №", iInd1, " и №", iInd2);
 				version(Verbose) writeln("Был: ", pIndA.programString());

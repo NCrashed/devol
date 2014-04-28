@@ -34,7 +34,8 @@ interface PopAbstract : ISerializable
 	IndAbstract opIndex( size_t i );
 	IndAbstract[] opSlice( size_t a, size_t b );
 	size_t opDollar();
-	int opApply(int delegate(ref IndAbstract) dg);
+	int opApply(int delegate(IndAbstract) dg);
+	int opApply(int delegate(size_t, IndAbstract) dg);
 }
 
 static string getDefChars()
@@ -129,11 +130,11 @@ class Population(alias nameChecker, IndType)
 		return inds.length;
 	}
 	
-	int opApply(int delegate(ref IndAbstract) dg)
+	int opApply(int delegate(IndAbstract) dg)
 	{
 		int result = 0;
 		
-		foreach( i,ref ind; inds)
+		foreach(i, ref ind; inds)
 		{
 			IndAbstract inda = (ind);
 			result = dg(inda);
@@ -142,6 +143,19 @@ class Population(alias nameChecker, IndType)
 		return result;
 	}
 	
+    int opApply(int delegate(size_t, IndAbstract) dg)
+    {
+        int result = 0;
+        
+        foreach(i, ref ind; inds)
+        {
+            IndAbstract inda = (ind);
+            result = dg(i, inda);
+            if (result) break;
+        }
+        return result;
+    }
+    
 	auto opBinary(string m)(IndType val)
 		if (m == "~")
 	{
