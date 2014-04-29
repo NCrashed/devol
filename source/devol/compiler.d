@@ -94,22 +94,22 @@ interface GameCompilation
             return true;
         }
         
+        if(!continuation(0.0)) return;
+        
+        double popProgress = 0.0;
 		foreach (i, ind; pop )
 		{
-		    if(!continuation(0.0)) return;
-		    double popProgress = (i+1) / cast(double)pop.length;
+		    if(!continuation(popProgress)) return;
 		    
 		    version(Verbose) std.stdio.writeln(ind.programString);
 		    
+		    double indProgess = 0.0;
 			auto fitts = new double[roundsPerInd];
 			foreach(j; 0..roundsPerInd)
 			{
 			    version(Verbose)std.stdio.writeln("Round: ", j);
 			    
-			    double prevIndProgress = j / cast(double)roundsPerInd;
-			    double indProgress = (j+1) / cast(double)roundsPerInd;
-			    
-			    if(!continuation(prevIndProgress * popProgress)) return;
+			    if(!continuation(popProgress + indProgess / cast(double) pop.length)) return;
 			    
 			    version(Verbose)std.stdio.writeln("World initialization: ");
 				world.initialize();
@@ -133,14 +133,15 @@ interface GameCompilation
 				version(Verbose) std.stdio.writeln("Saving fitness ");
 				fitts[j] = progType.getFitness(ind, world, 0);
 				
-				if(!continuation(indProgress * popProgress)) return;
+				indProgess += 1 / cast(double) roundsPerInd;
 			}
+			
 			double summ = 0;
 			foreach(val; fitts)
 				summ+=val;
 			ind.fitness = summ/fitts.length;
 			
-			if(!continuation(popProgress)) return;
+			popProgress += 1 / cast(double)pop.length;
 		}			
 	}
 	
