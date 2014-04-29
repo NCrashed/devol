@@ -210,11 +210,12 @@ public:
         this.progtype = progtype;
     }
     
-	void addPop(PopType pop)
+	PopType addPop(PopType pop)
 	{
-		if (pop is null || !checkPop(pop)) return;
+		if (pop is null || !checkPop(pop)) return null;
 		
 		pops ~= pop;
+		return pop;
 	}
 	
 	void clean()
