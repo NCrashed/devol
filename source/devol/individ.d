@@ -9,6 +9,8 @@ module devol.individ;
 
 import std.variant;
 import std.array;
+import std.random;
+
 import devol.serializable;
 
 public
@@ -19,6 +21,9 @@ public
 interface IndAbstract
 {
 	void initialize();
+	@property string name();
+	@property void name(string name);
+	
 	@property Line[] program();
 	@property void program(Line[] val);
 	@property size_t getGenomeSize();
@@ -44,6 +49,29 @@ class Individ : IndAbstract, ISerializable
 	{
 		mProgram = new Line[0];
 		mMemory = new Line[0];
+		mName = autogenName();
+	}
+	
+	private string autogenName()
+	{
+		enum alphabet = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+		size_t length = uniform!"[]"(5,8);
+		auto builder = appender!string;
+		foreach(i; 0..length)
+		{
+			builder.put(alphabet[uniform(0, alphabet.length)]);
+		}
+		return builder.data;
+	}
+	
+	@property string name()
+	{
+		return mName;
+	}
+	
+	@property void name(string name)
+	{
+		mName = name;
 	}
 	
     this(Individ ind)
@@ -185,6 +213,7 @@ class Individ : IndAbstract, ISerializable
 	    }
 	    
 	    stream.write(mFitness);
+	    stream.write(mName);
 	}
 	
 	static Individ loadBinary(InputStream stream)
@@ -224,6 +253,9 @@ class Individ : IndAbstract, ISerializable
         ind.outVals = loadLineArray(cast(size_t)outValsLength);
         
         stream.read(ind.mFitness);
+        char[] buff;
+        stream.read(buff);
+        ind.mName = buff.idup;
         
         return ind;
 	}
@@ -237,5 +269,6 @@ class Individ : IndAbstract, ISerializable
     	Line[] outVals;
     	
     	double mFitness;
+    	string mName;
     }
 }
