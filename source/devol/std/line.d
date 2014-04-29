@@ -469,6 +469,26 @@ class Line : Container, ISerializable
 	    }
 	}
 	
+	override string genDot(ref size_t nameIndex, out string nodeName)
+	{
+		auto builder = appender!string;
+		
+		builder.put(pOp.genDot(nameIndex, nodeName));
+		
+		foreach(arg; args)
+		{
+			string argNode;
+			builder.put(arg.genDot(nameIndex, argNode));
+			
+			builder.put(nodeName);
+			builder.put(" -> ");
+			builder.put(argNode);
+			builder.put(";\n");
+		}
+		
+		return builder.data;
+	}
+	
 	private Argument[] args;
 	private Operator pOp;
 }

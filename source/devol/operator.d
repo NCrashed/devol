@@ -9,6 +9,7 @@ module devol.operator;
 
 import std.string;
 import std.conv;
+import std.array;
 
 import devol.type;
 import devol.argument;
@@ -137,6 +138,22 @@ abstract class Operator : ISerializable
 	    stream.read(opname);
 	    
 	    return OperatorMng.getSingleton().getOperator(opname.idup);
+	}
+	
+	string genDot(ref size_t nameIndex, out string nodeName)
+	{
+		auto builder = appender!string;
+		nodeName = "p"~to!string(nameIndex++);
+		
+		builder.put(nodeName);
+		builder.put("; \n");
+		
+		builder.put(nodeName);
+		builder.put("[label=\"");
+		builder.put(sName);
+		builder.put("\"] ;\n");
+		
+		return builder.data;
 	}
 	
 protected:

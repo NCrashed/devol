@@ -10,6 +10,7 @@ module devol.individ;
 import std.variant;
 import std.array;
 import std.random;
+import std.conv;
 
 import devol.serializable;
 
@@ -41,6 +42,8 @@ interface IndAbstract
 	@property IndAbstract dup();
 	
 	@property string programString();
+	
+	string genDot();
 }
 
 class Individ : IndAbstract, ISerializable
@@ -258,6 +261,40 @@ class Individ : IndAbstract, ISerializable
         ind.mName = buff.idup;
         
         return ind;
+	}
+	
+	string genDot()
+	{
+		size_t nameIndex = 0;
+		auto builder = appender!string;
+		
+		builder.put("digraph \"");
+		builder.put(mName);
+		builder.put("\" {\n");
+		
+		string nodeName = "p"~to!string(nameIndex++);
+		
+		builder.put(nodeName);
+		builder.put("; \n");
+		
+		builder.put(nodeName);
+		builder.put("[label=\"");
+		builder.put("root");
+		builder.put("\"] ;\n");
+		
+		foreach(line; mProgram)
+		{
+			string lineNode;
+			builder.put(line.genDot(nameIndex, lineNode));
+			
+			builder.put(nodeName);
+			builder.put(" -> ");
+			builder.put(lineNode);
+			builder.put(";\n");
+		}
+		
+		builder.put("}\n");
+		return builder.data;
 	}
 	
     protected

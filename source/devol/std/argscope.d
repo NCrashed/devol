@@ -11,6 +11,7 @@ import std.conv;
 import std.random;
 import std.algorithm;
 import std.stream;
+import std.array;
 
 import devol.std.container;
 import devol.std.random;
@@ -242,5 +243,33 @@ class ArgScope : Container
 	    {
 	        line.saveBinary(stream);
 	    }
+	}
+	
+	override string genDot(ref size_t nameIndex, out string nodeName)
+	{
+		auto builder = appender!string;
+		
+		nodeName = "p"~to!string(nameIndex++);
+		
+		builder.put(nodeName);
+		builder.put("; \n");
+		
+		builder.put(nodeName);
+		builder.put("[label=\"");
+		builder.put("scope");
+		builder.put("\"] ;\n");
+		
+		foreach(line; lines)
+		{
+			string lineNode;
+			builder.put(line.genDot(nameIndex, lineNode));
+			
+			builder.put(nodeName);
+			builder.put(" -> ");
+			builder.put(lineNode);
+			builder.put(";\n");
+		}
+		
+		return builder.data;
 	}
 }
