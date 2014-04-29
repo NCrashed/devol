@@ -191,6 +191,24 @@ public:
         this.progtype = progtype;
 	}
 	
+    this(CompStg compStrategy, ProgType progtype, WorldType world)
+    {
+        compStg = compStrategy;
+        evolutor = new EvolutorStg();
+        pops = [];
+        this.world = world;
+        this.progtype = progtype;
+    }
+    
+    this(CompStg compStrategy, ProgType progtype, WorldType world, EvolutorStg evolutor)
+    {
+        compStg = compStrategy;
+        this.evolutor = evolutor;
+        pops = [];
+        this.world = world;
+        this.progtype = progtype;
+    }
+    
 	void addPop(PopType pop)
 	{
 		if (pop is null || !checkPop(pop)) return;
