@@ -231,7 +231,6 @@ class Individ : IndAbstract, ISerializable
                 assert(mark.idup == "line", "Mark is "~mark.idup);
                 
                 auto line = Line.loadBinary(stream);
-                std.stdio.writeln(line.tostring(0));
                 builder.put(line);
             }
             return builder.data;
