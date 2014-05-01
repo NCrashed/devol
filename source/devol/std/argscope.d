@@ -242,7 +242,7 @@ class ArgScope : Container
 	    
 	    foreach(Node subnode; node["lines"])
 	    {
-	        ascope.addElement(Line.loadYaml(node));
+	        ascope.addElement(Line.loadYaml(subnode));
 	    }
 	    return ascope;
 	}
