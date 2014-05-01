@@ -72,7 +72,11 @@ class Evolutor
 		foreach(i; 0..uniform!("[]")(ptype.progMinSize,ptype.progMaxSize))
 		{
 		    version(Verbose) writeln("Generating line ", i);
-			buff ~= generateLine( pInd, ptype );
+		    
+		    try buff ~= generateLine( pInd, ptype );
+            catch( GenExeption e)
+            {
+            }
 		}
 		pInd.program = buff;
 	}
@@ -103,14 +107,7 @@ class Evolutor
 				version(Verbose) writeln("Generating scope");
 				foreach(i; 0..s)
 				{
-					try
-					{
-						ascope.addElement( generateLine( pInd, ptype, voidtype ) );
-					} catch( GenExeption e)
-					{
-						if (e.error == e.ErrorType.SEARCH_OPERATOR)
-							debug writeln("Note: cannot find operator for type ", e.t.name);
-					}
+					ascope.addElement( generateLine( pInd, ptype, voidtype ) );
 				}
 			} else if (getChance(ptype.newOpGenChance) 
 					|| (op.style == ArgsStyle.CONTROL_STYLE && i != 0) 
@@ -119,15 +116,8 @@ class Evolutor
 			    version(Verbose) writeln("Generating line");
 				auto aline = new Line;
 				scope(success) line[j] = aline;
-				try
-				{
-					aline = generateLine( pInd, ptype, arg.type );
-				} catch( GenExeption e)
-				{
-					if (e.error == e.ErrorType.SEARCH_OPERATOR)
-						debug writeln("Note: cannot find operator for type ", e.t.name);
-					
-				}		
+
+				aline = generateLine( pInd, ptype, arg.type );		
 			}
 			
 			i++;
@@ -521,7 +511,13 @@ class Evolutor
 			{
 				if (k==0) // mutationAddLineChance
 				{
-					pInd.program = pInd.program ~ generateLine(pInd, ptype);
+				    try
+				    {
+				        pInd.program = pInd.program ~ generateLine(pInd, ptype);
+                    } catch( GenExeption e)
+                    {
+                        
+                    }
 					return;
 				} else if (k==1) // mutationRemoveLineChance
 				{
@@ -567,7 +563,15 @@ class Evolutor
 							replaceRandomElementStd(line, 
 								(Type t)
 								{
-									return cast(Argument)generateLine(pInd, ptype, t);
+								    try
+								    {
+								        return cast(Argument)generateLine(pInd, ptype, t);
+                                    } catch( GenExeption e)
+                                    {
+                                        auto arg = t.getNewArg();
+                                        arg.randomChange(ptype.maxMutationChange);
+                                        return arg;
+                                    }
 								});
 							
 						break;
@@ -580,7 +584,13 @@ class Evolutor
 							{
                                 if(t.name == voidtype.name)
                                 {
-                                    return generateLine(pInd, ptype);
+                                    try return generateLine(pInd, ptype);
+                                    catch( GenExeption e)
+                                    {
+                                        Argument arg = t.getNewArg();
+                                        arg.randomChange(ptype.maxMutationChange);
+                                        return arg;
+                                    }
                                 } 
                                 else
                                 {   
@@ -782,7 +792,13 @@ class Evolutor
             {
                 if(t.name == voidtype.name)
                 {
-                    return generateLine(pInd, ptype);
+                    try return generateLine(pInd, ptype);
+                    catch( GenExeption e)
+                    {
+                        Argument arg = t.getNewArg();
+                        arg.randomChange(ptype.maxMutationChange);
+                        return arg;
+                    }
                 } 
                 else
                 {   
