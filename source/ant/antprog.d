@@ -170,7 +170,7 @@ class Ant : Individ
 		EAST,
 		WEST
 	};
-	override void initialize()
+	override void initialize(WorldAbstract world)
 	{
 		x = AntWorld.size/2;
 		y = AntWorld.size/2;

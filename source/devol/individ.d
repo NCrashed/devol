@@ -13,6 +13,7 @@ import std.random;
 import std.conv;
 
 import devol.serializable;
+import devol.world;
 
 import dyaml.all;    
 
@@ -23,7 +24,7 @@ public
 
 interface IndAbstract
 {
-	void initialize();
+	void initialize(WorldAbstract world);
 	@property string name();
 	@property void name(string name);
 	
@@ -191,7 +192,7 @@ class Individ : IndAbstract, ISerializable
 		return ind;
 	} 
 	
-	void initialize() {}
+	void initialize(WorldAbstract world) {}
 	
 	void saveBinary(OutputStream stream)
 	{

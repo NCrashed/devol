@@ -118,7 +118,7 @@ interface GameCompilation
 				int step = 0;
 				
 				version(Verbose) std.stdio.writeln("Individ initialization: ");
-				ind.initialize();
+				ind.initialize(world);
 				while( !stopCond( step, ind, world ) )
 				{
 				    version(Verbose) std.stdio.writeln("Step ", step);
