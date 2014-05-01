@@ -81,6 +81,20 @@ class ArgPod(T) : Argument, ISerializable
 				return;
 			}
 			
+			static if(isFloatingPoint!T)
+			{
+    			if(mVal.isNaN)
+    			{
+    			    mVal = uniform!"[]"(0.0, 1.0);
+    			    return; 
+    			}
+    			
+    			if(ch.isNan)
+    			{
+    			    return;
+    			}
+			}
+			
 			mVal = uniform!"[]"(cast(T)(mVal-ch), cast(T)(mVal+ch));
 		} else
 		{
