@@ -17,6 +17,7 @@ import std.conv;
 import std.file;
 import std.path;
 import devol.serializable;
+import dyaml.all;    
 
 public
 {
@@ -28,14 +29,15 @@ interface PopAbstract : ISerializable
 	void genName(size_t size);
 	@property string name();
 	@property void name(string val);
-	@property uint generation();
-	@property void generation(uint val);
+	@property size_t generation();
+	@property void generation(size_t val);
 	@property size_t length();
 	IndAbstract opIndex( size_t i );
 	IndAbstract[] opSlice( size_t a, size_t b );
 	size_t opDollar();
 	int opApply(int delegate(IndAbstract) dg);
 	int opApply(int delegate(size_t, IndAbstract) dg);
+	Node saveYaml();
 }
 
 static string getDefChars()
@@ -56,12 +58,12 @@ class Population(alias nameChecker, IndType)
 	alias Population!(nameChecker, IndType) thistype;
 	alias IndType IndividType;
 	
-	@property uint generation()
+	@property size_t generation()
 	{
 		return iGeneration;
 	}
 	
-	@property void generation(uint val)
+	@property void generation(size_t val)
 	{
 		//if (val < iGeneration) return;
 		iGeneration = val;
@@ -69,12 +71,12 @@ class Population(alias nameChecker, IndType)
 	
 	this()
 	{
-		inds = new Individ[0];
+		inds = new IndType[0];
 	}
 	
 	this(size_t size)
 	{
-		inds = new Individ[size];
+		inds = new IndType[size];
 		foreach( ref ind; inds)
 		{
 			ind = new IndType;
@@ -246,6 +248,21 @@ class Population(alias nameChecker, IndType)
 	    }
 	}
 	
+	Node saveYaml()
+	{
+	    auto builder = appender!(Node[]);
+	    foreach(ind; inds)
+	    {
+	        builder.put(ind.saveYaml);
+	    }
+	    
+	    return Node([
+	        "name": Node(mName),
+	        "generation": Node(iGeneration),
+	        "individs": Node(builder.data)
+	        ]);
+	}
+	
 	static thistype loadBinary(InputStream stream)
 	{
 	    auto pop = new thistype();
@@ -257,7 +274,7 @@ class Population(alias nameChecker, IndType)
 	    
 	    ulong indsLength;
 	    stream.read(indsLength);
-	    auto builder = appender!(Individ[]);
+	    auto builder = appender!(IndType[]);
 	    foreach(i; 0..cast(size_t)indsLength)
 	    {
 	        auto ind = IndType.loadBinary(stream);
@@ -274,10 +291,28 @@ class Population(alias nameChecker, IndType)
 	    return pop;
 	}
 	
+	static thistype loadYaml(Node node)
+	{
+	    auto ret = new thistype();
+	    
+	    ret.mName = node["name"].as!string;
+	    ret.iGeneration = node["generation"].as!size_t;
+	    
+	    auto builder = appender!(IndType[]);
+	    foreach(Node subnode; node["individs"])
+	    {
+	        builder.put(IndType.loadYaml(subnode));
+	    }
+	    
+	    ret.inds = builder.data;
+	    
+	    return ret;
+	}
+	
     protected
     {
-    	uint iGeneration;
-    	Individ[] inds;
+    	size_t iGeneration;
+    	IndType[] inds;
     	string mName = "";
     }
 }

@@ -19,6 +19,8 @@ import devol.individ;
 import devol.serializable;
 import devol.operatormng;
 
+import dyaml.all;    
+
 enum ArgsStyle
 {
 	CLASSIC_STYLE,
@@ -132,12 +134,22 @@ abstract class Operator : ISerializable
 	    stream.write(sName);
 	}
 	
+	Node saveYaml()
+	{
+	    return Node(sName);
+	}
+	
 	static Operator loadBinary(InputStream stream)
 	{
 	    char[] opname;
 	    stream.read(opname);
 	    
 	    return OperatorMng.getSingleton().getOperator(opname.idup);
+	}
+	
+	static Operator loadYaml(Node node)
+	{
+	    return OperatorMng.getSingleton().getOperator(node.as!string);
 	}
 	
 	string genDot(ref size_t nameIndex, out string nodeName)

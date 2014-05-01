@@ -12,6 +12,8 @@ import devol.std.argscope;
 import devol.std.line;
 import std.stream;
 
+import dyaml.all;
+
 public
 {
 	import devol.std.argvoid;	
@@ -54,4 +56,27 @@ class TypeVoid : Type
 	    
 	    throw new Exception("Unknown void container!");
 	}	
+	
+    override Argument loadArgument(Node node)
+    {
+        switch(node["class"].as!string)
+        {
+            case("line"):
+            {
+                return Line.loadYaml(node);
+            }
+            case("scope"):
+            {
+                return ArgScope.loadYaml(node);
+            }
+            case("plain"):
+            {
+                return new ArgVoid;
+            }
+            default:
+            {
+                throw new Exception("Unknown void container!");
+            }
+        }
+    }  
 }

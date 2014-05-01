@@ -10,6 +10,8 @@ module devol.std.typescope;
 import std.stream;
 import devol.std.line;
 
+import dyaml.all;
+
 public
 {
 	import devol.type;
@@ -38,4 +40,9 @@ class TypeScope : Type
 	{
 	    return ArgScope.loadBinary(stream);
 	}
+	
+    override Argument loadArgument(Node node)
+    {
+        return ArgScope.loadYaml(node);
+    }   
 }

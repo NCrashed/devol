@@ -10,6 +10,8 @@ module devol.std.typeline;
 import devol.typemng;
 import std.stream;
 
+import dyaml.all;
+
 public 
 {
 	import devol.type;
@@ -37,5 +39,10 @@ class TypeLine : Type
 	override Argument loadArgument(InputStream stream)
 	{
 	    return Line.loadBinary(stream);
-	}	
+	}
+	
+    override Argument loadArgument(Node node)
+    {
+        return Line.loadYaml(node);
+    }	
 }

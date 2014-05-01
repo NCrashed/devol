@@ -16,6 +16,8 @@ import devol.singleton;
 import core.time;
 import core.thread;
 
+import dyaml.all;
+
 public
 {
 	import devol.typemng;
@@ -289,9 +291,7 @@ public:
 			    pop.saveBests(text(saveFolder, "/bests/"));
 			    pop.saveAll(text(saveFolder, "/all/"));
 			    
-			    auto binaryFile = new std.stream.File(text(saveFolder, "/population_", pop.generation, ".dpop"), FileMode.OutNew);
-			    scope(exit) binaryFile.close();
-			    pop.saveBinary(binaryFile);
+			    Dumper(text(saveFolder, "/population_", pop.generation, ".yaml")).dump(pop.saveYaml);
 		    }
 			
 			pop = evolutor.formNextPopulation( pop, progtype );
@@ -300,11 +300,14 @@ public:
 		}
 	}
 	
-	PopType loadPopulation(InputStream stream)
+	PopType loadPopulation(string filename)
 	{
-	    PopType pop = cast(PopType)PopType.loadBinary(stream);
+	    auto node = Loader(filename).load();
+	    
+	    PopType pop = cast(PopType)PopType.loadYaml(node);
 	    assert(pop !is null);
 	    pops ~= pop;
+	    
 	    return pop;
 	}
 	

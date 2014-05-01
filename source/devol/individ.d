@@ -14,6 +14,8 @@ import std.conv;
 
 import devol.serializable;
 
+import dyaml.all;    
+
 public
 {
 	import devol.std.line;	
@@ -42,6 +44,8 @@ interface IndAbstract
 	@property IndAbstract dup();
 	
 	@property string programString();
+	
+	Node saveYaml();
 	
 	string genDot();
 }
@@ -219,6 +223,53 @@ class Individ : IndAbstract, ISerializable
 	    stream.write(mName);
 	}
 	
+	Node saveYaml()
+	{
+        auto map = ["name": Node(name)];
+            
+	    auto programBuilder = appender!(Node[]);
+	    foreach(line; mProgram)
+	    {
+	        programBuilder.put(line.saveYaml);
+	    }
+	    if(programBuilder.data.length > 0)
+	    {
+	        map["program"] = Node(programBuilder.data);
+	    }
+	    
+        auto memoryBuilder = appender!(Node[]);
+        foreach(line; mMemory)
+        {
+            memoryBuilder.put(line.saveYaml);
+        }
+        if(memoryBuilder.data.length > 0)
+        {
+            map["memory"] = Node(memoryBuilder.data);
+        }
+        
+        auto invalsBuilder = appender!(Node[]);
+        foreach(line; inVals)
+        {
+            invalsBuilder.put(line.saveYaml);
+        }
+        if(invalsBuilder.data.length > 0)
+        {
+            map["invals"] = Node(invalsBuilder.data);
+        }
+        
+        auto outvalsBuilder = appender!(Node[]);
+        foreach(line; outVals)
+        {
+            outvalsBuilder.put(line.saveYaml);
+        }
+        if(outvalsBuilder.data.length > 0)
+        {
+            map["outvals"] = Node(outvalsBuilder.data);
+        }
+        
+        return Node(map);
+	}
+	
 	static Individ loadBinary(InputStream stream)
 	{
 	    Line[] loadLineArray(size_t length)
@@ -229,6 +280,7 @@ class Individ : IndAbstract, ISerializable
                 char[] mark;
                 stream.read(mark);
                 assert(mark.idup == "line", "Mark is "~mark.idup);
+                std.stdio.writeln(i);
                 
                 auto line = Line.loadBinary(stream);
                 builder.put(line);
@@ -258,6 +310,55 @@ class Individ : IndAbstract, ISerializable
         char[] buff;
         stream.read(buff);
         ind.mName = buff.idup;
+        
+        return ind;
+	}
+	
+	static Individ loadYaml(Node node)
+	{
+        auto ind = new Individ;
+        
+        ind.mName = node["name"].as!string;
+        
+        auto builder = appender!(Line[]);
+        if(node.containsKey("program"))
+        {
+            foreach(Node subnode; node["program"])
+            {
+                builder.put(Line.loadYaml(subnode));
+            }
+        }
+        ind.mProgram = builder.data;
+        
+        builder = appender!(Line[]);
+        if(node.containsKey("memory"))
+        {
+            foreach(Node subnode; node["memory"])
+            {
+                builder.put(Line.loadYaml(subnode));
+            }
+        }
+        ind.mMemory = builder.data;
+        
+        builder = appender!(Line[]);
+        if(node.containsKey("invals"))
+        {
+            foreach(Node subnode; node["invals"])
+            {
+                builder.put(Line.loadYaml(subnode));
+            }
+        }
+        ind.inVals = builder.data;
+        
+        builder = appender!(Line[]);
+        if(node.containsKey("outvals"))
+        {
+            foreach(Node subnode; node["outvals"])
+            {
+                builder.put(Line.loadYaml(subnode));
+            }
+        }
+        ind.outVals = builder.data;
         
         return ind;
 	}

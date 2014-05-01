@@ -11,6 +11,8 @@ import devol.argument;
 import devol.typemng;
 import std.stream;
 
+import dyaml.all;
+
 class ArgVoid : Argument
 {
 	this()
@@ -46,4 +48,11 @@ class ArgVoid : Argument
 	void saveBinary(OutputStream stream)
 	{
 	}
+	
+    override Node saveYaml()
+    {
+        return Node([
+            "class": Node("plain")
+            ]);
+    }
 }

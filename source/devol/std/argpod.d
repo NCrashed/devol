@@ -12,6 +12,8 @@ import std.random;
 import devol.serializable;
 import devol.typemng;
 
+import dyaml.all;
+
 class ArgPod(T) : Argument, ISerializable
 {
 	this()
@@ -104,5 +106,22 @@ class ArgPod(T) : Argument, ISerializable
         }
 	}
 	
+    override Node saveYaml()
+    {
+        static if(is(T == char))
+        {
+            return Node([
+                "class": Node("plain"),
+                "value": Node([mVal].idup)
+                ]);
+        } else
+        {
+            return Node([
+                "class": Node("plain"),
+                "value": Node(mVal)
+                ]);
+        }
+    }
+    
 	protected T mVal;
 }

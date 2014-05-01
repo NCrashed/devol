@@ -19,6 +19,8 @@ import devol.std.typescope;
 import devol.typemng;
 import devol.std.line;
 
+import dyaml.all;
+
 class ArgScope : Container
 {
 	private Line[] lines;
@@ -234,6 +236,17 @@ class ArgScope : Container
 	    return ascope;
 	}
 	
+	static Argument loadYaml(Node node)
+	{
+	    auto ascope = new ArgScope(TypeMng.getSingleton().getType("TypeVoid"));
+	    
+	    foreach(Node subnode; node["lines"])
+	    {
+	        ascope.addElement(Line.loadYaml(node));
+	    }
+	    return ascope;
+	}
+	
 	void saveBinary(OutputStream stream)
 	{
 	    stream.write("scope");
@@ -243,6 +256,26 @@ class ArgScope : Container
 	    {
 	        line.saveBinary(stream);
 	    }
+	}
+	
+	override Node saveYaml()
+	{
+	    auto builder = appender!(Node[]);
+	    foreach(line; lines)
+	    {
+	        builder.put(line.saveYaml());
+	    }
+	    
+	    auto map = [
+            "class": Node("scope")
+            ];
+            
+        if(builder.data.length > 0)
+        {
+            map["lines"] = Node(builder.data);
+        }
+        
+	    return Node(map);
 	}
 	
 	override string genDot(ref size_t nameIndex, out string nodeName)

@@ -24,6 +24,8 @@ import ant.world;
 import ant.sense;
 import ant.operators;
 
+import dyaml.all;
+
 class AntProgType : ProgTypeAbstract
 {
 	this()
@@ -197,5 +199,22 @@ class Ant : Individ
 		foreach(line; outVals)
 			ind.outVals ~= line.dup;	
 		return ind;
+	}
+	
+	static Ant loadYaml(Node node)
+	{
+	    auto ind = Individ.loadYaml(node);
+	    auto ant = new Ant();
+	    
+        foreach(line; ind.program)
+            ant.mProgram ~= line.dup;
+        foreach(line; ind.memory)
+            ant.mMemory ~= line.dup;    
+        foreach(line; ind.invals)
+            ant.inVals ~= line.dup;     
+        foreach(line; ind.outvals)
+            ant.outVals ~= line.dup;    
+        
+        return ant;
 	} 
 }

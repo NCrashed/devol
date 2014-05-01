@@ -11,6 +11,8 @@ import std.array;
 import devol.serializable;
 import devol.typemng;
 
+import dyaml.all;    
+
 public
 {
 	import devol.argument;
@@ -189,15 +191,31 @@ abstract class Type : ISerializable
 	    return TypeMng.getSingleton().getType(typename.idup);
 	}
 	
+	static Type loadYaml(Node node)
+	{
+	    return TypeMng.getSingleton().getType(node.as!string);
+	}
+	
 	/// Loading argument from input stream
 	/**
 	*  Should be defined by all childs.
 	*/
 	Argument loadArgument(InputStream stream);
 	
+	/// Loading argument from input stream
+    /**
+    *  Should be defined by all childs.
+    */
+	Argument loadArgument(Node node);
+	
 	void saveBinary(OutputStream stream)
 	{
         stream.write(sName);
+	}
+	
+	Node saveYaml()
+	{
+	    return Node(sName);
 	}
 	
 	private ConvertorFunc[Type] convs;

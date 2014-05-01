@@ -11,6 +11,8 @@ import std.random;
 import std.conv;
 import std.stream;
 
+import dyaml.all;
+
 public
 {
 	import devol.argument;
@@ -83,4 +85,15 @@ class TypePod(T) : Type
             return new ArgPod!T(val);
 	    }
 	}	
+	
+    override Argument loadArgument(Node node)
+    {
+        static if(is(T == char))
+        {
+           return new ArgPod!T(node["value"].as!string[0]);
+        } else
+        {
+            return new ArgPod!T(node["value"].as!T);
+        }
+    }
 }

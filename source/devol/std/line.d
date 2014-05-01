@@ -16,6 +16,8 @@ import std.algorithm;
 import devol.typemng;
 import devol.serializable;
 
+import dyaml.all;    
+
 public
 {
 	import devol.operator;
@@ -452,6 +454,25 @@ class Line : Container, ISerializable
 	    return line;
 	}
 	
+	static Line loadYaml(Node node)
+	{
+	    auto ret = new Line;
+	    ret.pOp = Operator.loadYaml(node["operator"]);
+	    
+	    auto builder = appender!(Argument[]); 
+	    if(node.containsKey("arguments"))
+	    {
+	        size_t i = 0;
+    	    foreach(Node subnode; node["arguments"])
+    	    {
+    	        builder.put(Argument.loadYaml(ret.pOp[i++].type, subnode));
+    	    }
+	    }
+	    ret.args = builder.data;
+	    
+	    return ret;
+	}
+	
 	void saveBinary(OutputStream stream)
 	{
 	    stream.write("line");
@@ -466,6 +487,28 @@ class Line : Container, ISerializable
             }
 	        arg.saveBinary(stream);
 	    }
+	}
+	
+	override Node saveYaml()
+	{
+	    auto builder = appender!(Node[]);
+	    
+	    foreach(arg; args)
+	    {
+	        builder.put(arg.saveYaml);
+	    }
+	    
+	    auto map = [
+            "class": Node("line"),
+            "operator": pOp.saveYaml,
+            ];
+            
+        if(builder.data.length > 0)
+        {
+            map["arguments"] = Node(builder.data);
+        }
+        
+        return Node(map);
 	}
 	
 	override string genDot(ref size_t nameIndex, out string nodeName)

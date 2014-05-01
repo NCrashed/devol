@@ -13,7 +13,10 @@
         {
             "name": "core",
             "targetType": "library",
-            "sourcePaths": ["source/devol"]
+            "sourcePaths": ["source/devol"],
+            "dependencies": {
+                "dyaml": "~master"
+            }
         },
         {
             "name": "ant",
@@ -22,7 +25,8 @@
             "sourcePaths": ["source/devol", "source/ant"],
             "mainSourceFile": "ant/main.d",
             "dependencies": {
-                "derelict-sdl2": "~master"
+                "derelict-sdl2": "~master",
+                "dyaml": "~master"
             }
         },
         {
@@ -33,7 +37,8 @@
             "mainSourceFile": "ant/main.d",
             "versions": ["NoGraphicsOutput"],
             "dependencies": {
-                "derelict-sdl2": "~master"
+                "derelict-sdl2": "~master",
+                "dyaml": "~master"
             }
         }
     ]

@@ -11,7 +11,6 @@ import std.stdio;
 import std.process;
 import std.conv;
 import std.getopt;
-import std.stream;
 
 import core.time, core.thread;
 
@@ -119,7 +118,7 @@ void main(string[] args)
         pop = comp.addPop(5);
     } else
     {
-        pop = comp.loadPopulation(new std.stream.File(savedPop, FileMode.In));
+        pop = comp.loadPopulation(savedPop);
     }
     
     while(!app.shouldExit) {comp.envolveGeneration(() => app.shouldExit, "saves", (d){}, () => false);}

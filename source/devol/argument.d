@@ -12,6 +12,11 @@ import devol.serializable;
 import std.array;
 import std.conv;
 
+import dyaml.all;
+
+import devol.std.line;
+import devol.std.argscope;
+
 abstract class Argument : ISerializable
 {
 	this(Type type)
@@ -42,10 +47,30 @@ abstract class Argument : ISerializable
 	
 	private Type pType; 
 	
-//	void saveBinary(OutputStream stream)
-//	{
-//	    pType.saveBinary(stream);
-//	}
+	Node saveYaml();
+	
+	static Argument loadYaml(Type type, Node node)
+	{
+	    switch(node["class"].as!string)
+	    {
+            case("line"):
+            {
+                return Line.loadYaml(node);
+            }
+            case("scope"):
+            {
+                return ArgScope.loadYaml(node);
+            }
+            case("plain"):
+            {
+                return type.loadArgument(node);
+            } 
+            default:
+            {
+                assert(false, "Failed to load! Unknown label!");
+            }
+	    }
+	}
 	
 	string genDot(ref size_t nameIndex, out string nodeName)
 	{
