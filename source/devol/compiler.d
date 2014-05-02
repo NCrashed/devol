@@ -268,20 +268,20 @@ public:
 		    
 			writeln("Pop init");
 			compStg.initPop( pop, world, progtype );
-			if(!continuation(1.0 / 4.0 * progressPart)) return;
+			if(!continuation(1.0 / 10.0 * progressPart)) return;
 			
 			writeln("Pop compile");
 			compStg.compilePop( pop, world, progtype, whenExit
 			    , (val)
 			    {
-			        updater(1.0 / 4.0 * progressPart + val / 4.0 * progressPart );
+			        updater(1.0 / 10.0 * progressPart + 7.0 * val / 10.0 * progressPart );
 			    }
 			    , pauser);
-			if(!continuation(2.0 / 4.0 * progressPart)) return;
+			if(!continuation(8.0 / 10.0 * progressPart)) return;
 			
 			writeln("GENERATION №", pop.generation, " results:");
 			compStg.calcPopFitness( pop, world, progtype );
-			if(!continuation(3.0 / 4.0 * progressPart)) return;
+			if(!continuation(9.0 / 10.0 * progressPart)) return;
 			
 			scope(exit)
 			{
