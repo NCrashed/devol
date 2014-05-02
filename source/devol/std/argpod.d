@@ -9,6 +9,8 @@ module devol.std.argpod;
 
 import std.conv;
 import std.random;
+import std.traits;
+import std.math;
 import devol.serializable;
 import devol.typemng;
 
@@ -89,7 +91,7 @@ class ArgPod(T) : Argument, ISerializable
     			    return; 
     			}
     			
-    			if(ch.isNan)
+    			if(ch.isNaN)
     			{
     			    return;
     			}
