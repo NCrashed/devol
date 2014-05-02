@@ -150,17 +150,16 @@ interface GameCompilation
 	final void calcPopFitness( PopAbstract pop, WorldAbstract world, ProgTypeAbstract progType )
 	{
 		uint i =0;
-		ulong summ = 0;
+		double summ = 0;
 		foreach( ind; pop )
 		{
 			writeln("Individ №",i++);
-			ind.fitness = progType.getFitness(ind, world, 0);
 			summ += ind.fitness;
 			writeln("Fitness = ", ind.fitness ); 
 		}
 		
 		drawFinal(pop, world);
-		auto asumm = cast(double)summ/pop.length;
+		auto asumm = summ/ cast(double)pop.length;
 		writeln("Average fitness = ", asumm);
 	}	
 }
@@ -293,7 +292,7 @@ public:
 			    
 			    Dumper(text(saveFolder, "/population_", pop.generation, ".yaml")).dump(pop.saveYaml);
 		    }
-			
+
 			pop = evolutor.formNextPopulation( pop, progtype );
 			pop.generation = pop.generation + 1;
 			if(!continuation(progressPart)) return;

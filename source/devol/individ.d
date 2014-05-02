@@ -226,7 +226,8 @@ class Individ : IndAbstract, ISerializable
 	
 	Node saveYaml()
 	{
-        auto map = ["name": Node(name)];
+        auto map = ["name": Node(name),
+                    "fitness": Node(fitness)];
             
 	    auto programBuilder = appender!(Node[]);
 	    foreach(line; mProgram)
@@ -281,7 +282,6 @@ class Individ : IndAbstract, ISerializable
                 char[] mark;
                 stream.read(mark);
                 assert(mark.idup == "line", "Mark is "~mark.idup);
-                std.stdio.writeln(i);
                 
                 auto line = Line.loadBinary(stream);
                 builder.put(line);
@@ -320,6 +320,7 @@ class Individ : IndAbstract, ISerializable
         auto ind = new Individ;
         
         ind.mName = node["name"].as!string;
+        ind.mFitness = node["fitness"].as!double;
         
         auto builder = appender!(Line[]);
         if(node.containsKey("program"))
