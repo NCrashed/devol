@@ -37,6 +37,7 @@ struct ArgInfo
 	string[] exVals;
 	string min;
 	string max;
+	bool eval = true;
 }
 
 abstract class Operator : ISerializable

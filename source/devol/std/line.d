@@ -212,7 +212,7 @@ class Line : Container, ISerializable
 		for( int i=0; i < dline.length; i++)
 		{
 			//writeln("Compiling arg ", i);
-			if ( pOp.style != ArgsStyle.CONTROL_STYLE || i==0 )
+			if ( pOp[i].eval )
 			{
 				auto ascope = dline.getScope(i);
 				if (ascope !is null)

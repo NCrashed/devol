@@ -41,9 +41,11 @@ class If : Operator
 		
 		ArgInfo a1;
 		a1.type = booltype;
+		a1.eval = true;
 		args ~= a1;
 		
 		a1.type = voidtype;
+		a1.eval = false;
 		args ~= a1;
 		args ~= a1;
 	}
