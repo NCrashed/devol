@@ -11,6 +11,7 @@ import std.stdio;
 import std.array;
 import std.stream;
 import std.conv;
+import std.datetime;
 import std.file;
 import devol.singleton;
 import core.time;
@@ -119,6 +120,7 @@ interface GameCompilation
 				
 				version(Verbose) std.stdio.writeln("Individ initialization: ");
 				ind.initialize(world);
+				StopWatch sw;
 				while( !stopCond( step, ind, world ) )
 				{
 				    version(Verbose) std.stdio.writeln("Step ", step);
@@ -126,14 +128,18 @@ interface GameCompilation
 					{
 					    version(Verbose) std.stdio.writeln("line : ", line.tostring);
 					    if(whenExit()) return;
+					    
+					    sw.start();
 						line.compile(ind, world);
+						sw.stop();
+						
 						drawStep(ind, world);
 					}
 					
 					step++;
 				}
 				version(Verbose) std.stdio.writeln("Saving fitness ");
-				fitts[j] = progType.getFitness(ind, world, 0);
+				fitts[j] = progType.getFitness(ind, world, 10e9*cast(double)sw.peek().hnsecs);
 				
 				indProgess += 1 / cast(double) roundsPerInd;
 			}
